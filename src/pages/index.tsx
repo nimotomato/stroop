@@ -1,15 +1,28 @@
 import { type NextPage } from "next";
 import Head from "next/head";
+
 import Link from "next/link";
 import { api } from "~/utils/api";
-import { SignInButton, useUser, SignOutButton } from "@clerk/nextjs";
+import { SignInButton, useUser, SignOutButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { UserResource } from "@clerk/types";
+
 
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
+  const { isLoaded, isSignedIn, user } = useUser()
 
-  const user = useUser();
+  if (!isLoaded || !isSignedIn) {
+    return null
+  }
 
+  const validateUserDetails = (user: UserResource): boolean => {
+    // get user details
+
+    // return true of they are godo
+    
+    return true;
+  }
+  
   return (
     <>
       <Head>
@@ -19,8 +32,18 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div>
-          {!user.isSignedIn && <SignInButton />}
-          {user.isSignedIn && <SignOutButton />}
+          <br />
+          <SignedIn>
+        {/* Mount the UserButton component */}
+            <div className="text-slate-200"> Welcome {user.primaryEmailAddress?.emailAddress}
+              <br />
+            <SignOutButton />
+            </div>
+          </SignedIn>
+          <SignedOut>
+            {/* Signed out users get sign in button */}
+            <SignInButton />
+         </SignedOut>
         </div>
       </main>
     </>
