@@ -8,8 +8,6 @@ import { api } from "~/utils/api";
 import UserDetailsForm from "~/components/UserDetailsForm";
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: "from tRPC" });
-
   const { user } = useUser();
 
     return (

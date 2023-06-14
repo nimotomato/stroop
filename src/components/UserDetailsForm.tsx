@@ -1,31 +1,72 @@
 import React from 'react'
 import { useUser } from "@clerk/nextjs";
 import { api } from "~/utils/api";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { isValid } from 'date-fns';
+import { userInfo } from 'os';
+
 
 export default function UserDetailsForm() {  
   const { user } = useUser();
 
   const userEmail = user?.primaryEmailAddress?.emailAddress;
 
-  const res = api.user.getAll.useQuery({ email: userEmail || "email_missing" })
-
-  const [form, setForm] = useState({
-    email: userEmail || '',
+  const [ form, setForm ] = useState({
     gender: '',
-    dateOfBirth: '',
-    occupation: '',
-    education: ''
+    currentOccupation: '',
+    highestEdu: '',
+    dateOfBirth: new Date(),
+    email: userEmail || '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const res = api.user.createUser.useMutation()
 
+  const userData = api.user.getAll.useQuery({ email: userEmail || ""})
+
+
+  // Update form state
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
+    if (e.target.id === 'dateOfBirth') {
+      setForm({ ...form, [e.target.id]: new Date(e.target.value) });
+    } else {
+      setForm({ ...form, [e.target.id]: e.target.value });
+    }
+  };
+
+  // Make sure now form data is missing
+  const checkEmpty = (key: string, value: string | Date) => {
+    if (value === ""){
+        alert(`${key} is empty!` )
+        return true;
+    }
+    return false;
   }
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()
-    console.log(e)
-  }
+    e.preventDefault()    
+    if (userData && userData.data && userData.data[0] && userData.data[0].email){ // This cannot be the way...
+        alert("Email already registered.");
+        return
+      }
+
+    const isEmpty = Object.entries(form).some((x) => {
+        if (checkEmpty(x[0], x[1])){
+            return true
+        }
+        return false;
+    })
+
+    if (isEmpty) { return}
+
+    if (form.dateOfBirth.getFullYear() === new Date().getFullYear() || !isValid(form.dateOfBirth) || form.dateOfBirth.getFullYear() >= new Date().getFullYear()){
+        alert("Invalid year selection, try again. ")        
+        return;
+    }
+
+    res.mutate({...form}) // This badboy needs error handling
+    }
+
+
 
 
   return (
@@ -33,16 +74,22 @@ export default function UserDetailsForm() {
         <form id="registrationForm">
             Register
             <br />
-            <label> Email:</label><br />
-            <input className="text-slate-500" type="text" id="email" value={ userEmail || ''} readOnly></input><br />
-            <label> Gender:</label><br />
-            <input type="text" id="gender" placeholder="male/female/unknown" onChange={handleChange}></input><br />
+            <label> Email: </label><br />
+            <input className="text-slate-600" type="text" id="email" value={ userEmail || ''} readOnly></input><br />
+            <label> Gender: </label><br />
+            <select className="text-slate-600" id="gender" placeholder="male/female/unspecified" onChange={handleChange}>
+                <option value="">select</option>
+                <option value="male">male</option>
+                <option value="female">female</option>
+                <option value="unspecified">unspecified</option>
+            </select><br />
             <label> Date of birth: </label><br />
-            <input type="text" id="dateOfBirth" placeholder="yyyy-mm-dd"></input><br />
-            <label> Current occupation:</label><br />
-            <input type="text" id="occupation" placeholder="e.g. machinist"></input><br />
-            <label> Highest completed education:</label><br />
-            <select id="education" placeholder="e.g. machinist">
+            <input className="text-slate-600"  type="date" id="dateOfBirth" placeholder="yyyy-mm-dd" onChange={handleChange}></input><br />
+            <label> Current occupation: </label><br />
+            <input className="text-slate-600" type="text" id="currentOccupation" onChange={handleChange}></input><br />
+            <label> Highest completed education: </label><br />
+            <select className="text-slate-600" id="highestEdu" onChange={handleChange}>
+                <option value="">select</option>
                 <option value="5">5 years</option>
                 <option value="10">10 years</option>
                 <option value="15">15 years</option>
