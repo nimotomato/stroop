@@ -12,9 +12,9 @@ generator client {
 }
 
 model User {
-    email             String @id @unique
+    email             String   @id @unique
     gender            String
-    dateOfBirth       Int
+    dateOfBirth       DateTime
     currentOccupation String
     highestEdu        String
     tests             Test[]

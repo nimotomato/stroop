@@ -4,16 +4,15 @@ import Head from "next/head";
 import Link from "next/link";
 import { SignInButton, useUser, SignOutButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { api } from "~/utils/api";
-import { UserResource } from "@clerk/types";
 
+import UserDetailsForm from "~/components/UserDetailsForm";
 
 const Home: NextPage = () => {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
 
   const { user } = useUser();
 
-
-  return (
+    return (
     <>
       <Head>
         <title>Create T3 App</title>
@@ -22,9 +21,11 @@ const Home: NextPage = () => {
       </Head>
       <main className= "h-screen bg-slate-800">
         <div className="text-slate-200">
+          
           <SignedIn>
-            {user && `Hello ${user.firstName}`}
+            {user && `Hello ${user.firstName}, this is your email: ${user.primaryEmailAddress?.emailAddress}`} 
             <br />
+            <UserDetailsForm />
             <SignOutButton />
           </SignedIn>
           <SignedOut>
