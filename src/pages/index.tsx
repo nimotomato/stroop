@@ -3,13 +3,13 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
 import { SignInButton, useUser, SignOutButton, SignedIn, SignedOut } from "@clerk/nextjs";
-import { api } from "~/utils/api";
 
 import UserDetailsForm from "~/components/UserDetailsForm";
+import StroopTest from "~/components/StroopTest";
 
 const Home: NextPage = () => {
   const { user } = useUser();
-
+ 
     return (
     <>
       <Head>
@@ -19,11 +19,11 @@ const Home: NextPage = () => {
       </Head>
       <main className= "h-screen bg-slate-800">
         <div className="text-slate-200">
-          
           <SignedIn>
             {user && `Hello ${user.firstName}, this is your email: ${user.primaryEmailAddress?.emailAddress}`} 
             <br />
             <UserDetailsForm />
+            <StroopTest />
             <SignOutButton />
           </SignedIn>
           <SignedOut>

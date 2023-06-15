@@ -1,9 +1,7 @@
-import React from 'react'
 import { useUser } from "@clerk/nextjs";
 import { api } from "~/utils/api";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { isValid } from 'date-fns';
-import { userInfo } from 'os';
 
 
 export default function UserDetailsForm() {  
@@ -23,6 +21,9 @@ export default function UserDetailsForm() {
 
   const userData = api.user.getAll.useQuery({ email: userEmail || ""})
 
+  if (userData.data && userData.data.length === 1) {
+    return "time to play!";
+  }
 
   // Update form state
   const handleChange = (e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLSelectElement>) => {
@@ -43,7 +44,6 @@ export default function UserDetailsForm() {
   }
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault()    
     if (userData && userData.data && userData.data[0] && userData.data[0].email){ // This cannot be the way...
         alert("Email already registered.");
         return
@@ -65,8 +65,6 @@ export default function UserDetailsForm() {
 
     res.mutate({...form}) // This badboy needs error handling
     }
-
-
 
 
   return (
