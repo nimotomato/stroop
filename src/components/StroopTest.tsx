@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 
+import SpeechInput from "./SpeechInput";
+
 const StroopTest = () => {
     // Map containing colors and corresponding RGB values 
     const colors = [
@@ -29,7 +31,8 @@ const StroopTest = () => {
 
     const [ currentColorValue, setCurrentColorValue ] = useState(defaultColor);
 
-    const [ verbalResponse, setVerbalResponse ] = useState("");
+    const [ transcript, setTranscript ] = useState({});
+
 
     const handleStartButtonClick = () => {
         setHasStarted((state) => {
@@ -87,13 +90,14 @@ const StroopTest = () => {
         setHasStarted(false);
     }
 
-    const handleResponseTemp = () => {
+    const handleResponse = () => {
         responseTimeRef.current = performance.now() - startTimeRef.current;
 
         responseTimesRef.current = responseTimesRef.current.set([currentColorName, currentColorValue], responseTimeRef.current)
-        
-        console.log("Response time: ", responseTimeRef.current);
-        console.log("Map: ", responseTimesRef.current)        
+    }
+
+    const handleSetTranscript = (transcript: string) => {
+        setTranscript(transcript);
     }
     
     // Main loop
@@ -102,6 +106,12 @@ const StroopTest = () => {
         const testRunId = setTimeout(() => stopTest(runId), matchingColorsTestDuration);
 
         return () => {
+            // Log results
+            if (hasStarted){
+                console.log("Map: ", responseTimesRef.current)
+            }
+    
+            clearInterval(runId)
             clearTimeout(testRunId);
         }
     }, [hasStarted])
@@ -120,14 +130,14 @@ const StroopTest = () => {
                 {currentColorName}
                 </p>
             </div>
+            <SpeechInput handleResponse={handleResponse} hasStarted={hasStarted} handleSetTranscript={handleSetTranscript} />
             <div>
                 <button onClick={handleStartButtonClick} className="border-solid border-2 border-slate-500 rounded-lg p-2">
                     {hasStarted ? "Stop game!" : "Start game!"}
                 </button>
-                <button onClick={handleResponseTemp} className="border-solid border-2 border-slate-500 rounded-lg p-2">
+                <button onClick={handleResponse} className="border-solid border-2 border-slate-500 rounded-lg p-2">
                     Respond!
                 </button>
-                <div>Response: {`${verbalResponse}`}</div>
             </div>
             
         </div>
