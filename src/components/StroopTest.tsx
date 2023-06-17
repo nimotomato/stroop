@@ -1,4 +1,4 @@
-import { useState, useEffect, MouseEventHandler } from "react"
+import { useState, useEffect, useRef } from "react"
 
 const StroopTest = () => {
     // Map containing colors and corresponding RGB values 
@@ -11,14 +11,25 @@ const StroopTest = () => {
 
     const [hasStarted, setHasStarted] = useState(false);
 
+    // Keep track of response times
+    const responseTimesRef = useRef(new Map());
+
+    const startTimeRef = useRef(0);
+
+    const responseTimeRef = useRef(0);
+
     // Contols how quickly the colors switch. Measured in ms. 
     const intervalLength = 1000;
 
-    const defaultColor = "white";
+    const matchingColorsTestDuration = 10000;
+    
+    const defaultColor= "";
 
     const [ currentColorName, setCurrentColorName ] = useState(defaultColor);
 
     const [ currentColorValue, setCurrentColorValue ] = useState(defaultColor);
+
+    const [ verbalResponse, setVerbalResponse ] = useState("");
 
     const handleStartButtonClick = () => {
         setHasStarted((state) => {
@@ -60,12 +71,47 @@ const StroopTest = () => {
             return colors[randomIndex]![valueIndex]!
         })
     }
-    
-    useEffect(() => {
-        const id = setInterval(() => setMatchingColors(colors), intervalLength);
+
+    const runMatchingCondition = (): NodeJS.Timer | undefined => {
+        if (hasStarted){
+            return setInterval(() => setMatchingColors(colors), intervalLength);            
+        } else {
+            clearColors();
+        }
+        return undefined;
+    }
+
+    const stopTest = (testId: NodeJS.Timer | undefined) => {
+        clearColors();
+        clearInterval(testId);
+        setHasStarted(false);
+    }
+
+    const handleResponseTemp = () => {
+        responseTimeRef.current = performance.now() - startTimeRef.current;
+
+        responseTimesRef.current = responseTimesRef.current.set([currentColorName, currentColorValue], responseTimeRef.current)
         
-        return () => clearInterval(id);        
-    }, [])
+        console.log("Response time: ", responseTimeRef.current);
+        console.log("Map: ", responseTimesRef.current)        
+    }
+    
+    // Main loop
+    useEffect(() => {
+        const runId = runMatchingCondition();
+        const testRunId = setTimeout(() => stopTest(runId), matchingColorsTestDuration);
+
+        return () => {
+            clearTimeout(testRunId);
+        }
+    }, [hasStarted])
+
+    // Start response timer
+    useEffect(() => {
+        startTimeRef.current = performance.now();
+
+      }, [currentColorName]);
+
 
     return (
         <div className="flex flex-col justify-center items-center">
@@ -78,6 +124,10 @@ const StroopTest = () => {
                 <button onClick={handleStartButtonClick} className="border-solid border-2 border-slate-500 rounded-lg p-2">
                     {hasStarted ? "Stop game!" : "Start game!"}
                 </button>
+                <button onClick={handleResponseTemp} className="border-solid border-2 border-slate-500 rounded-lg p-2">
+                    Respond!
+                </button>
+                <div>Response: {`${verbalResponse}`}</div>
             </div>
             
         </div>
