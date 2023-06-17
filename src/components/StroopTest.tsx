@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, Dispatch, SetStateAction, MouseEventHandler  } from "react"
 
 import SpeechInput from "./SpeechInput";
 import KeyboardInput from "./KeyboardInput";
@@ -14,17 +14,18 @@ const StroopTest = () => {
 
     const [hasStarted, setHasStarted] = useState(false);
 
-    // Keep track of response times
-    const responseTimesRef = useRef(new Map());
+    const resultsRef = useRef(new Array);
 
     const startTimeRef = useRef(0);
 
     const responseTimeRef = useRef(0);
 
+    const [ hasResponded, setHasResponded ] = useState(false); // This is used to restrict test taker to only respond once. 
+
     // Contols how quickly the colors switch. Measured in ms. 
     const intervalLength = 1000;
 
-    const matchingColorsTestDuration = 10000;
+    const matchingColorsTestDuration = 20 * 1000; 
     
     const defaultColor= "";
 
@@ -40,9 +41,8 @@ const StroopTest = () => {
     }
 
     const getRandomInt = (max: number): number => {
-        const rand = Math.floor(Math.random() * max)
-        return rand
-    }
+        return Math.floor(Math.random() * max)
+     }
     
     const clearColors = () => {
         setCurrentColorName(() => {
@@ -72,6 +72,8 @@ const StroopTest = () => {
         setCurrentColorValue(() => {
             return colors[randomIndex]![valueIndex]!
         })
+
+
     }
 
     const runMatchingCondition = (): NodeJS.Timer | undefined => {
@@ -91,10 +93,10 @@ const StroopTest = () => {
         setHasStarted(false);
     }
 
-    const handleResponse = () => {
+    const handleResponse = (response: string) => {
         responseTimeRef.current = performance.now() - startTimeRef.current;
 
-        responseTimesRef.current = responseTimesRef.current.set([currentColorName, currentColorValue], responseTimeRef.current)
+        resultsRef.current.push({"currentColorName": currentColorName, "currentColorValue": currentColorValue, "response": response, "responseTime": responseTimeRef.current})
     }
 
     // Main loop
@@ -105,7 +107,8 @@ const StroopTest = () => {
         return () => {
             // Log results
             if (hasStarted){
-                console.log("Map: ", responseTimesRef.current)
+                console.log("Results: ", resultsRef.current)
+                resultsRef.current = new Array();
             }
     
             clearInterval(runId)
@@ -115,14 +118,18 @@ const StroopTest = () => {
 
     // Start response timer
     useEffect(() => {
-        startTimeRef.current = performance.now();
-
+        if (currentColorName !== ""){
+            setHasResponded(() => false) // Reset response gate
+            startTimeRef.current = performance.now();
+        }
+        
       }, [currentColorName]);
 
 
     return (
         <div className="flex flex-col justify-center items-center">
-            <div className="flex justify-center items-center border-solid border-black border-2 w-24 h-12 my-60">
+            <KeyboardInput setHasResponded={setHasResponded} hasResponded={hasResponded} handleResponse={handleResponse}/>
+            <div className="flex justify-center items-center border-solid border-black border-2 w-24 h-12 mb-60 mt-32 ">
                 <p style={{color: currentColorValue}} className={`p-4 py-2`}>
                 {currentColorName}
                 </p>
@@ -130,10 +137,6 @@ const StroopTest = () => {
             <div>
                 <button onClick={handleStartButtonClick} className="border-solid border-2 border-slate-500 rounded-lg p-2">
                     {hasStarted ? "Stop game!" : "Start game!"}
-                </button>
-                <KeyboardInput />
-                <button onClick={handleResponse} className="border-solid border-2 border-slate-500 rounded-lg p-2">
-                    Respond!
                 </button>
             </div>
             
