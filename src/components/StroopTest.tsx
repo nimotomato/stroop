@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react"
 
 import SpeechInput from "./SpeechInput";
+import KeyboardInput from "./KeyboardInput";
 
 const StroopTest = () => {
     // Map containing colors and corresponding RGB values 
@@ -30,8 +31,6 @@ const StroopTest = () => {
     const [ currentColorName, setCurrentColorName ] = useState(defaultColor);
 
     const [ currentColorValue, setCurrentColorValue ] = useState(defaultColor);
-
-    const [ transcript, setTranscript ] = useState({});
 
 
     const handleStartButtonClick = () => {
@@ -98,10 +97,6 @@ const StroopTest = () => {
         responseTimesRef.current = responseTimesRef.current.set([currentColorName, currentColorValue], responseTimeRef.current)
     }
 
-    const handleSetTranscript = (transcript: string) => {
-        setTranscript(transcript);
-    }
-    
     // Main loop
     useEffect(() => {
         const runId = runMatchingCondition();
@@ -132,11 +127,11 @@ const StroopTest = () => {
                 {currentColorName}
                 </p>
             </div>
-            <SpeechInput handleResponse={handleResponse} hasStarted={hasStarted} handleSetTranscript={handleSetTranscript} />
             <div>
                 <button onClick={handleStartButtonClick} className="border-solid border-2 border-slate-500 rounded-lg p-2">
                     {hasStarted ? "Stop game!" : "Start game!"}
                 </button>
+                <KeyboardInput />
                 <button onClick={handleResponse} className="border-solid border-2 border-slate-500 rounded-lg p-2">
                     Respond!
                 </button>
