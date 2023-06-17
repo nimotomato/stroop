@@ -10,7 +10,7 @@ interface Props {
 
 const SpeechInput = ( props: Props ) => {
     // Object to keep track of the transcript
-    const { transcript, resetTranscript, listening, browserSupportsSpeechRecognition } = useSpeechRecognition()
+    const { transcript, resetTranscript, interimTranscript, listening, browserSupportsSpeechRecognition } = useSpeechRecognition()
 
     // Return if browser does not support speech recognition
     if (!browserSupportsSpeechRecognition) {
@@ -35,11 +35,16 @@ const SpeechInput = ( props: Props ) => {
 
     useEffect(() => {
         if (props.hasStarted){
-            props.handleResponse();
             props.handleSetTranscript(transcript); // Update transcript in StroopTest component
         }
         
     }, [transcript])
+
+    useEffect(() => {
+        if (props.hasStarted){
+            props.handleResponse();
+        }
+    }, [interimTranscript])
 
 
     return ( 

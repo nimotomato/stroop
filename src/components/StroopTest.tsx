@@ -86,7 +86,9 @@ const StroopTest = () => {
 
     const stopTest = (testId: NodeJS.Timer | undefined) => {
         clearColors();
+
         clearInterval(testId);
+        
         setHasStarted(false);
     }
 
