@@ -36,14 +36,7 @@ const KeyboardInput = ( props: Props ) => {
     }, [props.hasResponded])
 
   return (
-    <div className="mt-24">
-      Control your response with the keyboard. Only the first keypress each stimulus counts towards your score. <br />
-      Please, keep your fingers on the keys at all times to be more effecient. <br />
-      R = Red <br />
-      Y = Yellow <br />
-      G = Green <br />
-      B = Blue
-    </div>
+    <></>
   )
 }
 
