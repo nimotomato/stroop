@@ -46,7 +46,7 @@ export default function UserDetailsForm() {
     return false;
   };
 
-  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = () => {
     if (
       userData &&
       userData.data &&
@@ -147,7 +147,7 @@ export default function UserDetailsForm() {
       <button
         className="bg-black"
         form="registrationForm"
-        onClick={(e) => handleSubmit(e)}
+        onClick={handleSubmit}
       >
         Submit
       </button>

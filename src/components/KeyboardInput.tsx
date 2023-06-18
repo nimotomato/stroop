@@ -1,9 +1,11 @@
 import { useEffect, Dispatch, SetStateAction } from "react";
 
+type handleResponseFunction = (arg1: string) => void;
+
 interface Props {
   setHasResponded: Dispatch<SetStateAction<boolean>>;
   hasResponded: boolean;
-  handleResponse: Function;
+  handleResponse: handleResponseFunction;
 }
 
 const KeyboardInput = (props: Props) => {

@@ -1,15 +1,19 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  Dispatch,
-  SetStateAction,
-  MouseEventHandler,
-} from "react";
+import { useState, useEffect, useRef } from "react";
 
-import SpeechInput from "./SpeechInput";
 import KeyboardInput from "./KeyboardInput";
 import Countdown from "./Countdown";
+
+type ColorHistoryItem = {
+  colorName: string;
+  colorValue: string;
+};
+
+type ResultsItem = {
+  colorName: string;
+  colorValue: string;
+  response: string;
+  responseTime: number;
+};
 
 const StroopTest = () => {
   // Map containing colors and corresponding RGB values
@@ -28,7 +32,7 @@ const StroopTest = () => {
 
   const [hasStarted, setHasStarted] = useState(false);
 
-  const resultsRef = useRef(new Array());
+  const resultsRef = useRef<ResultsItem[]>([]);
 
   const startTimeRef = useRef(0);
 
@@ -45,7 +49,7 @@ const StroopTest = () => {
 
   const countDownLength = 5 * 1000;
 
-  const [colorHistory, setColorHistory] = useState(new Array());
+  const [colorHistory, setColorHistory] = useState<ColorHistoryItem[]>([]);
 
   const [currentColorName, setCurrentColorName] = useState(defaultColor);
 
@@ -83,7 +87,7 @@ const StroopTest = () => {
 
   // Sets the colorname and colorvalue to match
   const setMatchingColors = (colors: string[][]) => {
-    let randomIndex = getRandomInt(colors.length);
+    const randomIndex = getRandomInt(colors.length);
 
     const nameIndex = 0;
     const valueIndex = 1;
@@ -100,15 +104,18 @@ const StroopTest = () => {
       return colors[randomIndex]![valueIndex]!;
     });
 
-    colorHistory.push({
-      colorName: colors[randomIndex]![nameIndex]!,
-      colorValue: colors[randomIndex]![valueIndex]!,
-    });
+    setColorHistory((prevState) => [
+      ...prevState,
+      {
+        colorName: colors[randomIndex]![nameIndex]!,
+        colorValue: colors[randomIndex]![valueIndex]!,
+      },
+    ]);
   };
 
   const setNonMatchingColors = (colors: string[][]) => {
-    let randomNameIndex = getRandomInt(colors.length);
-    let randomValueIndex = getRandomInt(colors.length);
+    const randomNameIndex = getRandomInt(colors.length);
+    const randomValueIndex = getRandomInt(colors.length);
 
     const nameIndex = 0;
     const valueIndex = 1;
@@ -125,10 +132,13 @@ const StroopTest = () => {
       return colors[randomValueIndex]![valueIndex]!;
     });
 
-    colorHistory.push({
-      colorName: colors[randomNameIndex]![nameIndex]!,
-      colorValue: colors[randomValueIndex]![valueIndex]!,
-    });
+    setColorHistory((prevState) => [
+      ...prevState,
+      {
+        colorName: colors[randomNameIndex]![nameIndex]!,
+        colorValue: colors[randomValueIndex]![valueIndex]!,
+      },
+    ]);
   };
 
   const runMatchingCondition = (): NodeJS.Timer | undefined => {
@@ -151,9 +161,16 @@ const StroopTest = () => {
   const handleResponse = (response: string) => {
     responseTimeRef.current = performance.now() - startTimeRef.current;
 
+    const colorHistoryItem: ColorHistoryItem = colorHistory[
+      colorHistory.length - 1
+    ] || {
+      colorName: currentColorName,
+      colorValue: currentColorValue,
+    };
+
     resultsRef.current.push({
-      currentColorName: colorHistory[colorHistory.length - 1].colorName,
-      currentColorValue: colorHistory[colorHistory.length - 1].colorValue,
+      colorName: colorHistoryItem.colorName,
+      colorValue: colorHistoryItem.colorValue,
       response: response,
       responseTime: responseTimeRef.current,
     });
@@ -172,7 +189,7 @@ const StroopTest = () => {
       // Log results
       if (hasStarted) {
         console.log("Results: ", resultsRef.current);
-        resultsRef.current = new Array(); // Reset data
+        resultsRef.current = []; // Reset data
       }
 
       clearInterval(runId);

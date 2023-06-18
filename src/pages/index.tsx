@@ -1,7 +1,7 @@
 import { type NextPage } from "next";
-import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
 import Link from "next/link";
+
 import {
   SignInButton,
   useUser,
@@ -26,8 +26,6 @@ const Home: NextPage = () => {
       <main className="h-screen bg-slate-800">
         <div className="text-slate-200">
           <SignedIn>
-            {user &&
-              `Hello ${user.firstName}, this is your email: ${user.primaryEmailAddress?.emailAddress}`}
             <br />
             <UserDetailsForm />
             <StroopTest />
