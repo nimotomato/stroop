@@ -20,6 +20,12 @@ const StroopTest = () => {
     ["blue", "#0000FF"],
   ];
 
+  const trials = new Map([
+    ["firstTrial", "matchingColors"],
+    ["secondTrial", "colorValue"],
+    ["thirdTrial", "colorName"],
+  ]);
+
   const [hasStarted, setHasStarted] = useState(false);
 
   const resultsRef = useRef(new Array());
@@ -100,6 +106,31 @@ const StroopTest = () => {
     });
   };
 
+  const setNonMatchingColors = (colors: string[][]) => {
+    let randomNameIndex = getRandomInt(colors.length);
+    let randomValueIndex = getRandomInt(colors.length);
+
+    const nameIndex = 0;
+    const valueIndex = 1;
+
+    setCurrentColorName((currentColor) => {
+      if (currentColor !== "") {
+        return "";
+      } else {
+        return colors[randomNameIndex]![nameIndex]!;
+      }
+    });
+
+    setCurrentColorValue(() => {
+      return colors[randomValueIndex]![valueIndex]!;
+    });
+
+    colorHistory.push({
+      colorName: colors[randomNameIndex]![nameIndex]!,
+      colorValue: colors[randomValueIndex]![valueIndex]!,
+    });
+  };
+
   const runMatchingCondition = (): NodeJS.Timer | undefined => {
     if (hasStarted) {
       return setInterval(() => setMatchingColors(colors), intervalLength);
@@ -177,8 +208,8 @@ const StroopTest = () => {
     );
   };
 
-  const renderInstructions = () => {
-    return (
+  return (
+    <div className="flex flex-col items-center justify-center">
       <div className="mt-24">
         Control your response with the keyboard. Only the first keypress each
         stimulus counts towards your score. <br />
@@ -188,12 +219,6 @@ const StroopTest = () => {
         Y = Yellow <br />
         G = Green <br />B = Blue
       </div>
-    );
-  };
-
-  return (
-    <div className="flex flex-col items-center justify-center">
-      {renderInstructions()}
       {countDownTimer ? (
         <Countdown
           setCountDownTimer={setCountDownTimer}
