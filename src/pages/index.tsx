@@ -2,20 +2,17 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
+import UserDetailsForm from "~/components/UserDetailsForm";
+import StroopTest from "~/components/StroopTest";
+
 import {
   SignInButton,
-  useUser,
   SignOutButton,
   SignedIn,
   SignedOut,
 } from "@clerk/nextjs";
 
-import UserDetailsForm from "~/components/UserDetailsForm";
-import StroopTest from "~/components/StroopTest";
-
 const Home: NextPage = () => {
-  const { user } = useUser();
-
   return (
     <>
       <Head>
@@ -27,7 +24,9 @@ const Home: NextPage = () => {
         <div className="text-slate-200">
           <SignedIn>
             <br />
+
             <UserDetailsForm />
+
             <StroopTest />
             <SignOutButton />
           </SignedIn>

@@ -41,7 +41,7 @@ const StroopTest = () => {
   const [hasResponded, setHasResponded] = useState(false); // This is used to restrict test taker to only respond once.
 
   // Contols how quickly the colors switch. Measured in ms.
-  const intervalLength = 1500;
+  const intervalLength = 1 * 1000;
 
   const matchingColorsTestDuration = 10 * 1000;
 
