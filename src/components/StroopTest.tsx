@@ -49,13 +49,15 @@ const StroopTest = () => {
 
   const countDownLength = 5 * 1000;
 
-  const [colorHistory, setColorHistory] = useState<ColorHistoryItem[]>([]);
-
   const [currentColorName, setCurrentColorName] = useState(defaultColor);
 
   const [currentColorValue, setCurrentColorValue] = useState(defaultColor);
 
   const [countDownTimer, setCountDownTimer] = useState(false);
+
+  const colorNameRef = useRef("");
+
+  const colorValueRef = useRef("");
 
   const handleStartButtonClick = () => {
     setCountDownTimer((state) => {
@@ -92,6 +94,9 @@ const StroopTest = () => {
     const nameIndex = 0;
     const valueIndex = 1;
 
+    colorNameRef.current = colors[randomIndex]![nameIndex]!;
+    colorValueRef.current = colors[randomIndex]![valueIndex]!;
+
     setCurrentColorName((currentColor) => {
       if (currentColor !== "") {
         return "";
@@ -100,45 +105,13 @@ const StroopTest = () => {
       }
     });
 
-    setCurrentColorValue(() => {
-      return colors[randomIndex]![valueIndex]!;
-    });
-
-    setColorHistory((prevState) => [
-      ...prevState,
-      {
-        colorName: colors[randomIndex]![nameIndex]!,
-        colorValue: colors[randomIndex]![valueIndex]!,
-      },
-    ]);
-  };
-
-  const setNonMatchingColors = (colors: string[][]) => {
-    const randomNameIndex = getRandomInt(colors.length);
-    const randomValueIndex = getRandomInt(colors.length);
-
-    const nameIndex = 0;
-    const valueIndex = 1;
-
-    setCurrentColorName((currentColor) => {
+    setCurrentColorValue((currentColor) => {
       if (currentColor !== "") {
         return "";
       } else {
-        return colors[randomNameIndex]![nameIndex]!;
+        return colors[randomIndex]![valueIndex]!;
       }
     });
-
-    setCurrentColorValue(() => {
-      return colors[randomValueIndex]![valueIndex]!;
-    });
-
-    setColorHistory((prevState) => [
-      ...prevState,
-      {
-        colorName: colors[randomNameIndex]![nameIndex]!,
-        colorValue: colors[randomValueIndex]![valueIndex]!,
-      },
-    ]);
   };
 
   const runMatchingCondition = (): NodeJS.Timer | undefined => {
@@ -161,16 +134,9 @@ const StroopTest = () => {
   const handleResponse = (response: string) => {
     responseTimeRef.current = performance.now() - startTimeRef.current;
 
-    const colorHistoryItem: ColorHistoryItem = colorHistory[
-      colorHistory.length - 1
-    ] || {
-      colorName: currentColorName,
-      colorValue: currentColorValue,
-    };
-
     resultsRef.current.push({
-      colorName: colorHistoryItem.colorName,
-      colorValue: colorHistoryItem.colorValue,
+      colorName: colorNameRef.current,
+      colorValue: colorValueRef.current,
       response: response,
       responseTime: responseTimeRef.current,
     });
@@ -198,10 +164,18 @@ const StroopTest = () => {
     };
   }, [hasStarted]);
 
+  // Makes sure missed responses is logged. TO DO: This is broken, doesnt work on first stimulus.
+  useEffect(() => {
+    if (hasStarted && currentColorName === "" && !hasResponded) {
+      handleResponse("");
+      setHasResponded(true);
+    }
+  }, [currentColorName, hasResponded]);
+
   // Start response timer
   useEffect(() => {
     if (currentColorName !== "") {
-      setHasResponded(() => false); // Reset response gate
+      setHasResponded(false); // Reset response gate
       startTimeRef.current = performance.now();
     }
   }, [currentColorName]);
