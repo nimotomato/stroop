@@ -11,6 +11,8 @@ const AnimatedInstructions = (props: Props) => {
 
   const animationDuration = 300;
 
+  const tickLength = 25;
+
   const [displayInstruction, setDisplayInstruction] = useState("");
 
   const [currentInstruction, setCurrentInstruction] = useState("");
@@ -79,15 +81,15 @@ const AnimatedInstructions = (props: Props) => {
 
     if (currentCharIndex === currentInstruction.length) return;
 
-    let typeWriterTimingId = setInterval(() => {
+    let tickId = setInterval(() => {
       typedWord = currentWord.slice(0, currentCharIndex);
       setDisplayInstruction(typedWord);
 
       currentCharIndex += 1;
-    }, 25);
+    }, tickLength);
 
     return () => {
-      clearInterval(typeWriterTimingId);
+      clearInterval(tickId);
     };
   }, [currentInstruction]);
 
