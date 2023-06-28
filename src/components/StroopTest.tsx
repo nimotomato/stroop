@@ -3,10 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import KeyboardInput from "./KeyboardInput";
 import Countdown from "./Countdown";
 
-type ColorHistoryItem = {
-  colorName: string;
-  colorValue: string;
-};
+import { defaultInstructions, warmUpInstructions } from "../instructions";
 
 type ResultsItem = {
   colorName: string;
@@ -17,18 +14,7 @@ type ResultsItem = {
 
 const StroopTest = () => {
   // Map containing colors and corresponding RGB values
-  const colors = [
-    ["red", "#FF0000"],
-    ["yellow", "#FFFF00"],
-    ["green", "#008000"],
-    ["blue", "#0000FF"],
-  ];
-
-  const trials = new Map([
-    ["firstTrial", "matchingColors"],
-    ["secondTrial", "colorValue"],
-    ["thirdTrial", "colorName"],
-  ]);
+  const colors = ["red", "yellow", "green", "blue"];
 
   const [hasStarted, setHasStarted] = useState(false);
 
@@ -41,23 +27,26 @@ const StroopTest = () => {
   const [hasResponded, setHasResponded] = useState(false); // This is used to restrict test taker to only respond once.
 
   // Contols how quickly the colors switch. Measured in ms.
-  const intervalLength = 1 * 1000;
+  const intervalLength = 1000 * 1;
 
-  const matchingColorsTestDuration = 10 * 1000;
+  // This needs an extra intervalLength to not shut down repsonses too early.
+  const activeTestDuration = intervalLength + 1000 * 10;
 
-  const defaultColor = "";
+  const warmUpDuration = intervalLength + 1000 * 10;
 
-  const countDownLength = 5 * 1000;
+  const countDownLength = 1000 * 5;
 
-  const [currentColorName, setCurrentColorName] = useState(defaultColor);
+  const [currentColorName, setCurrentColorName] = useState("");
 
-  const [currentColorValue, setCurrentColorValue] = useState(defaultColor);
+  const [currentColorValue, setCurrentColorValue] = useState("");
 
   const [countDownTimer, setCountDownTimer] = useState(false);
 
   const colorNameRef = useRef("");
 
   const colorValueRef = useRef("");
+
+  const [instructions, setInstructions] = useState(defaultInstructions);
 
   const handleStartButtonClick = () => {
     setCountDownTimer((state) => {
@@ -88,20 +77,17 @@ const StroopTest = () => {
   };
 
   // Sets the colorname and colorvalue to match
-  const setMatchingColors = (colors: string[][]) => {
+  const setMatchingColors = (colors: string[]) => {
     const randomIndex = getRandomInt(colors.length);
 
-    const nameIndex = 0;
-    const valueIndex = 1;
-
-    colorNameRef.current = colors[randomIndex]![nameIndex]!;
-    colorValueRef.current = colors[randomIndex]![valueIndex]!;
+    colorNameRef.current = colors[randomIndex]!;
+    colorValueRef.current = colors[randomIndex]!;
 
     setCurrentColorName((currentColor) => {
       if (currentColor !== "") {
         return "";
       } else {
-        return colors[randomIndex]![nameIndex]!;
+        return colors[randomIndex]!;
       }
     });
 
@@ -109,7 +95,36 @@ const StroopTest = () => {
       if (currentColor !== "") {
         return "";
       } else {
-        return colors[randomIndex]![valueIndex]!;
+        return colors[randomIndex]!;
+      }
+    });
+  };
+
+  // Sets the colorname and colorvalue to match
+  const setHeteroColors = (colors: string[]) => {
+    const randomValueIndex = getRandomInt(colors.length);
+    let randomNameIndex = getRandomInt(colors.length);
+
+    while (randomNameIndex === randomValueIndex) {
+      randomNameIndex = getRandomInt(colors.length);
+    }
+
+    colorNameRef.current = colors[randomValueIndex]!;
+    colorValueRef.current = colors[randomNameIndex]!;
+
+    setCurrentColorName((currentColor) => {
+      if (currentColor !== "") {
+        return "";
+      } else {
+        return colors[randomValueIndex]!;
+      }
+    });
+
+    setCurrentColorValue((currentColor) => {
+      if (currentColor !== "") {
+        return "";
+      } else {
+        return colors[randomNameIndex]!;
       }
     });
   };
@@ -131,6 +146,15 @@ const StroopTest = () => {
     setHasStarted(false);
   };
 
+  const runHeteroCondition = (): NodeJS.Timer | undefined => {
+    if (hasStarted) {
+      return setInterval(() => setHeteroColors(colors), intervalLength);
+    } else {
+      clearColors();
+    }
+    return undefined;
+  };
+
   const handleResponse = (response: string) => {
     responseTimeRef.current = performance.now() - startTimeRef.current;
 
@@ -143,13 +167,30 @@ const StroopTest = () => {
   };
 
   // Main loop
-  useEffect(() => {
-    const runId = runMatchingCondition();
+  // useEffect(() => {
+  //   const runId = runMatchingCondition();
 
-    const testRunId = setTimeout(
-      () => stopTest(runId),
-      matchingColorsTestDuration
-    );
+  //   const testRunId = setTimeout(
+  //     () => stopTest(runId),
+  //     activeTestDuration
+  //   );
+
+  //   return () => {
+  //     // Log results
+  //     if (hasStarted) {
+  //       console.log("Results: ", resultsRef.current);
+  //       resultsRef.current = []; // Reset data
+  //     }
+
+  //     clearInterval(runId);
+  //     clearTimeout(testRunId);
+  //   };
+  // }, [hasStarted]);
+
+  useEffect(() => {
+    const runId = runHeteroCondition();
+
+    const testRunId = setTimeout(() => stopTest(runId), activeTestDuration);
 
     return () => {
       // Log results
@@ -164,7 +205,7 @@ const StroopTest = () => {
     };
   }, [hasStarted]);
 
-  // Makes sure missed responses is logged. TO DO: This is broken, doesnt work on first stimulus.
+  // Makes sure missed stimuli are logged.
   useEffect(() => {
     if (hasStarted && currentColorName === "" && !hasResponded) {
       handleResponse("");
@@ -201,15 +242,7 @@ const StroopTest = () => {
 
   return (
     <div className="flex flex-col items-center justify-center">
-      <div className="mt-24">
-        Control your response with the keyboard. Only the first keypress each
-        stimulus counts towards your score. <br />
-        Please, keep your fingers on the keys at all times to be more effecient.{" "}
-        <br />
-        R = Red <br />
-        Y = Yellow <br />
-        G = Green <br />B = Blue
-      </div>
+      <div className="mt-24">{instructions}</div>
       {countDownTimer ? (
         <Countdown
           setCountDownTimer={setCountDownTimer}
