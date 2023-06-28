@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from "react";
 
 import KeyboardInput from "./KeyboardInput";
 import Countdown from "./Countdown";
-
-import { defaultInstructions, warmUpInstructions } from "../instructions";
+import RenderTrial from "./RenderTrial";
 
 type ResultsItem = {
   colorName: string;
@@ -46,7 +45,17 @@ const StroopTest = () => {
 
   const colorValueRef = useRef("");
 
-  const [instructions, setInstructions] = useState(defaultInstructions);
+  const [instructions, setInstructions] = useState(
+    <div className="instructions">
+      Control your response with the keyboard. Only the first keypress each
+      stimulus counts towards your score. <br />
+      Please, keep your fingers on the keys at all times to be more efficient.
+      <br />
+      R = Red <br />
+      Y = Yellow <br />
+      G = Green <br />B = Blue
+    </div>
+  );
 
   const handleStartButtonClick = () => {
     setCountDownTimer((state) => {
@@ -166,29 +175,8 @@ const StroopTest = () => {
     });
   };
 
-  // Main loop
-  // useEffect(() => {
-  //   const runId = runMatchingCondition();
-
-  //   const testRunId = setTimeout(
-  //     () => stopTest(runId),
-  //     activeTestDuration
-  //   );
-
-  //   return () => {
-  //     // Log results
-  //     if (hasStarted) {
-  //       console.log("Results: ", resultsRef.current);
-  //       resultsRef.current = []; // Reset data
-  //     }
-
-  //     clearInterval(runId);
-  //     clearTimeout(testRunId);
-  //   };
-  // }, [hasStarted]);
-
   useEffect(() => {
-    const runId = runHeteroCondition();
+    const runId = runMatchingCondition();
 
     const testRunId = setTimeout(() => stopTest(runId), activeTestDuration);
 
@@ -200,10 +188,27 @@ const StroopTest = () => {
       }
 
       clearInterval(runId);
-
       clearTimeout(testRunId);
     };
   }, [hasStarted]);
+
+  // useEffect(() => {
+  //   const runId = runHeteroCondition();
+
+  //   const testRunId = setTimeout(() => stopTest(runId), activeTestDuration);
+
+  //   return () => {
+  //     // Log results
+  //     if (hasStarted) {
+  //       console.log("Results: ", resultsRef.current);
+  //       resultsRef.current = []; // Reset data
+  //     }
+
+  //     clearInterval(runId);
+
+  //     clearTimeout(testRunId);
+  //   };
+  // }, [hasStarted]);
 
   // Makes sure missed stimuli are logged.
   useEffect(() => {
@@ -221,25 +226,6 @@ const StroopTest = () => {
     }
   }, [currentColorName]);
 
-  const renderTrial = () => {
-    return (
-      <div className="flex flex-col items-center justify-center">
-        <div className="stroop keyboard-input">
-          <KeyboardInput
-            setHasResponded={setHasResponded}
-            hasResponded={hasResponded}
-            handleResponse={handleResponse}
-          />
-          <div className="mb-60 mt-32 flex h-12 w-24 items-center justify-center border-2 border-solid border-black ">
-            <p style={{ color: currentColorValue }} className={`p-4 py-2`}>
-              {currentColorName}
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
   return (
     <div className="flex flex-col items-center justify-center">
       <div className="mt-24">{instructions}</div>
@@ -250,7 +236,16 @@ const StroopTest = () => {
           timerHasStarted={countDownTimer}
         />
       ) : (
-        (hasStarted && renderTrial()) || null
+        (hasStarted && (
+          <RenderTrial
+            setHasResponded={setHasResponded}
+            hasResponded={hasResponded}
+            handleResponse={handleResponse}
+            currentColorValue={currentColorValue}
+            currentColorName={currentColorName}
+          />
+        )) ||
+        null
       )}
       <div>
         {!countDownTimer && !hasStarted && (
