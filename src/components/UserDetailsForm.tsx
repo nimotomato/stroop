@@ -21,7 +21,7 @@ export default function UserDetailsForm() {
   const userData = api.user.getAll.useQuery({ email: userEmail || "" });
 
   if (userData.data && userData.data.length === 1) {
-    return "time to play!";
+    return;
   }
 
   // Update form state
