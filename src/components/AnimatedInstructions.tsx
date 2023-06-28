@@ -1,11 +1,15 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, Dispatch, SetStateAction } from "react";
 
 interface Props {
   instructions: string[];
+  setLoadComponent: Dispatch<SetStateAction<string>>;
+  load: string;
 }
 
 const AnimatedInstructions = (props: Props) => {
-  if (!props.instructions || props.instructions.length === 0) return;
+  if (!props.instructions || props.instructions.length === 0) {
+    return null;
+  }
 
   const instructionLength = 1000 * 5;
 
@@ -19,7 +23,9 @@ const AnimatedInstructions = (props: Props) => {
 
   const [instructionStarted, setInstructionStarted] = useState(true);
 
-  const [animation, setAnimation] = useState("opacity-0");
+  const [animation, setAnimation] = useState(
+    `transition-opacity opacity-0 duration-${animationDuration}`
+  );
 
   const timers: NodeJS.Timeout[] = [];
 
@@ -93,7 +99,25 @@ const AnimatedInstructions = (props: Props) => {
     };
   }, [currentInstruction]);
 
-  return <div className={`${animation} h-20`}>{displayInstruction}</div>;
+  // Watch for EOF
+  useEffect(() => {
+    if (currentInstruction === "EOI") {
+      props.setLoadComponent(props.load);
+    }
+  }, [currentInstruction]);
+
+  if (currentInstruction === "EOI") {
+    clearTimers();
+    return null;
+  }
+
+  return (
+    <div className="flex h-full flex-col items-center justify-center text-center">
+      <div className={`${animation} h-2 w-48 text-left`}>
+        {displayInstruction}
+      </div>
+    </div>
+  );
 };
 
 export default AnimatedInstructions;

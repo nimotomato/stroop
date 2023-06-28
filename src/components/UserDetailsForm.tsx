@@ -1,5 +1,5 @@
 import { useUser } from "@clerk/nextjs";
-import { api } from "~/utils/api";
+import { api } from "src/utils/api";
 import { useState } from "react";
 import { isValid } from "date-fns";
 

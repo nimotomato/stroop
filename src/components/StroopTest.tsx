@@ -3,6 +3,15 @@ import { useState, useEffect, useRef } from "react";
 import KeyboardInput from "./KeyboardInput";
 import Countdown from "./Countdown";
 import RenderTrial from "./RenderTrial";
+import MatchingColors from "./MatchingColors";
+import AnimatedInstructions from "src/components/AnimatedInstructions";
+
+import {
+  initialInstructions,
+  keyboardInstructions,
+  matchingTestInstructions,
+} from "src/data/instructions";
+import StartButton from "./StartButton";
 
 type ResultsItem = {
   colorName: string;
@@ -45,18 +54,6 @@ const StroopTest = () => {
 
   const colorValueRef = useRef("");
 
-  const [instructions, setInstructions] = useState(
-    <div className="instructions">
-      Control your response with the keyboard. Only the first keypress each
-      stimulus counts towards your score. <br />
-      Please, keep your fingers on the keys at all times to be more efficient.
-      <br />
-      R = Red <br />
-      Y = Yellow <br />
-      G = Green <br />B = Blue
-    </div>
-  );
-
   const handleStartButtonClick = () => {
     setCountDownTimer((state) => {
       return !state;
@@ -82,30 +79,6 @@ const StroopTest = () => {
 
     setCurrentColorValue(() => {
       return "";
-    });
-  };
-
-  // Sets the colorname and colorvalue to match
-  const setMatchingColors = (colors: string[]) => {
-    const randomIndex = getRandomInt(colors.length);
-
-    colorNameRef.current = colors[randomIndex]!;
-    colorValueRef.current = colors[randomIndex]!;
-
-    setCurrentColorName((currentColor) => {
-      if (currentColor !== "") {
-        return "";
-      } else {
-        return colors[randomIndex]!;
-      }
-    });
-
-    setCurrentColorValue((currentColor) => {
-      if (currentColor !== "") {
-        return "";
-      } else {
-        return colors[randomIndex]!;
-      }
     });
   };
 
@@ -138,15 +111,6 @@ const StroopTest = () => {
     });
   };
 
-  const runMatchingCondition = (): NodeJS.Timer | undefined => {
-    if (hasStarted) {
-      return setInterval(() => setMatchingColors(colors), intervalLength);
-    } else {
-      clearColors();
-    }
-    return undefined;
-  };
-
   const stopTest = (testId: NodeJS.Timer | undefined) => {
     clearColors();
 
@@ -174,23 +138,6 @@ const StroopTest = () => {
       responseTime: responseTimeRef.current,
     });
   };
-
-  useEffect(() => {
-    const runId = runMatchingCondition();
-
-    const testRunId = setTimeout(() => stopTest(runId), activeTestDuration);
-
-    return () => {
-      // Log results
-      if (hasStarted) {
-        console.log("Results: ", resultsRef.current);
-        resultsRef.current = []; // Reset data
-      }
-
-      clearInterval(runId);
-      clearTimeout(testRunId);
-    };
-  }, [hasStarted]);
 
   // useEffect(() => {
   //   const runId = runHeteroCondition();
@@ -226,37 +173,94 @@ const StroopTest = () => {
     }
   }, [currentColorName]);
 
+  const [loadComponent, setLoadComponent] = useState("initialInstructions");
+
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="mt-24">{instructions}</div>
-      {countDownTimer ? (
-        <Countdown
-          setCountDownTimer={setCountDownTimer}
-          countDownLength={countDownLength}
-          timerHasStarted={countDownTimer}
+    <div className="flex h-screen flex-col items-center justify-center text-slate-200">
+      {/* On load, display initial instructions in the center of the screen. */}
+      {loadComponent === "initialInstructions" && (
+        <AnimatedInstructions
+          load={"keyboardInstructions"}
+          setLoadComponent={setLoadComponent}
+          instructions={initialInstructions}
         />
-      ) : (
-        (hasStarted && (
-          <RenderTrial
-            setHasResponded={setHasResponded}
-            hasResponded={hasResponded}
-            handleResponse={handleResponse}
-            currentColorValue={currentColorValue}
-            currentColorName={currentColorName}
-          />
-        )) ||
-        null
       )}
-      <div>
-        {!countDownTimer && !hasStarted && (
-          <button
-            onClick={handleStartButtonClick}
-            className="rounded-lg border-2 border-solid border-slate-500 p-2"
-          >
-            Start test!
-          </button>
-        )}
-      </div>
+      {loadComponent === "keyboardInstructions" && (
+        <AnimatedInstructions
+          load={"matchingColorWarmUpButton"}
+          setLoadComponent={setLoadComponent}
+          instructions={keyboardInstructions}
+        />
+      )}
+      {loadComponent === "matchingColorWarmUpButton" && (
+        <StartButton
+          setLoadComponent={setLoadComponent}
+          load={"matchingColorWarmUp"}
+          startWhat="matching color warm up."
+          setHasStarted={setHasStarted}
+        />
+      )}
+      {loadComponent === "matchingColorWarmUp" && (
+        <MatchingColors
+          stopTest={stopTest}
+          getRandomInt={getRandomInt}
+          colorNameRef={colorNameRef}
+          colorValueRef={colorValueRef}
+          resultsRef={resultsRef}
+          setCurrentColorName={setCurrentColorName}
+          setCurrentColorValue={setCurrentColorValue}
+          hasStarted={hasStarted}
+          colors={colors}
+          intervalLength={intervalLength}
+          activeTestDuration={warmUpDuration}
+          clearColors={clearColors}
+          setHasResponded={setHasResponded}
+          hasResponded={hasResponded}
+          handleResponse={handleResponse}
+          currentColorValue={currentColorValue}
+          currentColorName={currentColorName}
+          setLoadComponent={setLoadComponent}
+          load={"matchingColorTestButton"}
+        />
+      )}
+      {loadComponent === "matchingColorTestButton" && (
+        <AnimatedInstructions
+          load={"startFirstTest"}
+          setLoadComponent={setLoadComponent}
+          instructions={matchingTestInstructions}
+        />
+      )}
+      {loadComponent === "startFirstTest" && (
+        <StartButton
+          setLoadComponent={setLoadComponent}
+          load={"matchingColorTest"}
+          startWhat="matching color test."
+          setHasStarted={setHasStarted}
+        />
+      )}
+      {loadComponent === "matchingColorTest" && (
+        <MatchingColors
+          stopTest={stopTest}
+          getRandomInt={getRandomInt}
+          colorNameRef={colorNameRef}
+          colorValueRef={colorValueRef}
+          resultsRef={resultsRef}
+          setCurrentColorName={setCurrentColorName}
+          setCurrentColorValue={setCurrentColorValue}
+          hasStarted={hasStarted}
+          colors={colors}
+          intervalLength={intervalLength}
+          activeTestDuration={activeTestDuration}
+          clearColors={clearColors}
+          setHasResponded={setHasResponded}
+          hasResponded={hasResponded}
+          handleResponse={handleResponse}
+          currentColorValue={currentColorValue}
+          currentColorName={currentColorName}
+          setLoadComponent={setLoadComponent}
+          load={"mismatchColorTextInstruction"}
+        />
+      )}
     </div>
   );
 };
