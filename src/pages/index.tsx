@@ -4,6 +4,9 @@ import Link from "next/link";
 
 import UserDetailsForm from "~/components/UserDetailsForm";
 import StroopTest from "~/components/StroopTest";
+import AnimatedInstructions from "~/components/AnimatedInstructions";
+
+import { initialInstructions } from "../data/instructions";
 
 import {
   SignInButton,
@@ -26,6 +29,7 @@ const Home: NextPage = () => {
             <br />
 
             <UserDetailsForm />
+            <AnimatedInstructions instructions={initialInstructions} />
 
             <StroopTest />
             <SignOutButton />

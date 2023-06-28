@@ -3,8 +3,6 @@ import { useState, useEffect, useRef } from "react";
 import KeyboardInput from "./KeyboardInput";
 import Countdown from "./Countdown";
 
-import { defaultInstructions, warmUpInstructions } from "../instructions";
-
 type ResultsItem = {
   colorName: string;
   colorValue: string;
@@ -46,7 +44,17 @@ const StroopTest = () => {
 
   const colorValueRef = useRef("");
 
-  const [instructions, setInstructions] = useState(defaultInstructions);
+  const [instructions, setInstructions] = useState(
+    <div className="instructions">
+      Control your response with the keyboard. Only the first keypress each
+      stimulus counts towards your score. <br />
+      Please, keep your fingers on the keys at all times to be more efficient.
+      <br />
+      R = Red <br />
+      Y = Yellow <br />
+      G = Green <br />B = Blue
+    </div>
+  );
 
   const handleStartButtonClick = () => {
     setCountDownTimer((state) => {
@@ -166,26 +174,22 @@ const StroopTest = () => {
     });
   };
 
-  // Main loop
-  // useEffect(() => {
-  //   const runId = runMatchingCondition();
+  useEffect(() => {
+    const runId = runMatchingCondition();
 
-  //   const testRunId = setTimeout(
-  //     () => stopTest(runId),
-  //     activeTestDuration
-  //   );
+    const testRunId = setTimeout(() => stopTest(runId), activeTestDuration);
 
-  //   return () => {
-  //     // Log results
-  //     if (hasStarted) {
-  //       console.log("Results: ", resultsRef.current);
-  //       resultsRef.current = []; // Reset data
-  //     }
+    return () => {
+      // Log results
+      if (hasStarted) {
+        console.log("Results: ", resultsRef.current);
+        resultsRef.current = []; // Reset data
+      }
 
-  //     clearInterval(runId);
-  //     clearTimeout(testRunId);
-  //   };
-  // }, [hasStarted]);
+      clearInterval(runId);
+      clearTimeout(testRunId);
+    };
+  }, [hasStarted]);
 
   useEffect(() => {
     const runId = runHeteroCondition();
