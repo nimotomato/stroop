@@ -28,5 +28,6 @@ export const userRouter = createTRPCRouter({
     return ctx.prisma.user.create({
       data: { ...input }
     });
-  })
+  }),
+
 });

@@ -1,4 +1,6 @@
-import { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
+import { useState, useEffect, useRef } from "react";
+import type { Dispatch, SetStateAction } from "react";
+import { api } from "src/utils/api";
 
 import MatchingColors from "./MatchingColors";
 import MisMatchingColors from "./MisMatchingColors";
@@ -16,6 +18,7 @@ type ResultsItem = {
 
 interface Props {
   setBackgroundColor: Dispatch<SetStateAction<string>>;
+  userEmail: string;
 }
 
 const StroopTest = (props: Props) => {
@@ -47,6 +50,8 @@ const StroopTest = (props: Props) => {
   const colorNameRef = useRef("");
 
   const colorValueRef = useRef("");
+
+  const [loadComponent, setLoadComponent] = useState("initialInstructions");
 
   const getRandomInt = (max: number): number => {
     return Math.floor(Math.random() * max);
@@ -81,6 +86,37 @@ const StroopTest = (props: Props) => {
     });
   };
 
+  const resetResults = () => {
+    resultsRef.current = []; // Reset data
+
+    return true;
+  };
+
+  // Sends test data to database
+  const sendData = api.test.sendData.useMutation();
+
+  const sendResultsToDb = () => {
+    if (
+      !resultsRef.current ||
+      resultsRef.current.length === 0 ||
+      props.userEmail === ""
+    )
+      return;
+
+    sendData.mutate({
+      testScore: resultsRef.current,
+      testTaker: props.userEmail,
+    });
+
+    return true;
+  };
+
+  useEffect(() => {
+    if (loadComponent === "end") {
+      sendResultsToDb();
+    }
+  }, [loadComponent]);
+
   // Makes sure missed stimuli are logged.
   useEffect(() => {
     if (hasStarted && currentColorName === "" && !hasResponded) {
@@ -97,8 +133,6 @@ const StroopTest = (props: Props) => {
     }
   }, [currentColorName]);
 
-  const [loadComponent, setLoadComponent] = useState("initialInstructions");
-
   if (loadComponent === "") return null;
 
   return (
@@ -111,6 +145,7 @@ const StroopTest = (props: Props) => {
           instructions={i.initialInstructions}
         />
       )}
+      {loadComponent === "initialInstructions" && resetResults()}
       {/* Show instructions on how to use keyboard */}
       {loadComponent === "keyboardInstructions" && (
         <AnimatedInstructions

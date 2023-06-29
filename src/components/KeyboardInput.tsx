@@ -1,4 +1,5 @@
-import { useEffect, Dispatch, SetStateAction } from "react";
+import { useEffect } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 type handleResponseFunction = (arg1: string) => void;
 

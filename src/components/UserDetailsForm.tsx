@@ -1,9 +1,14 @@
 import { useUser } from "@clerk/nextjs";
 import { api } from "src/utils/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { isValid } from "date-fns";
+import type { Dispatch, SetStateAction } from "react";
 
-export default function UserDetailsForm() {
+interface Props {
+  setUserEmail: Dispatch<SetStateAction<string>>;
+}
+
+export default function UserDetailsForm({ setUserEmail }: Props) {
   const { user } = useUser();
 
   const userEmail = user?.primaryEmailAddress?.emailAddress;
@@ -19,10 +24,6 @@ export default function UserDetailsForm() {
   const res = api.user.createUser.useMutation();
 
   const userData = api.user.getAll.useQuery({ email: userEmail || "" });
-
-  if (userData.data && userData.data.length === 1) {
-    return;
-  }
 
   // Update form state
   const handleChange = (
@@ -80,6 +81,14 @@ export default function UserDetailsForm() {
 
     res.mutate({ ...form }); // This badboy needs error handling
   };
+
+  useEffect(() => {
+    if (userEmail) setUserEmail(userEmail);
+  }, [userEmail]);
+
+  if (userData.data && userData.data.length === 1) {
+    return;
+  }
 
   return (
     <div>

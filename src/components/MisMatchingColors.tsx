@@ -1,4 +1,6 @@
-import { useEffect, Dispatch, SetStateAction, MutableRefObject } from "react";
+import { useEffect } from "react";
+
+import type { Dispatch, SetStateAction, MutableRefObject } from "react";
 
 import RenderTrial from "./RenderTrial";
 
@@ -88,12 +90,6 @@ const MisMatchingColors = (props: Props) => {
     }, props.activeTestDuration);
 
     return () => {
-      // Log results
-      if (props.hasStarted) {
-        console.log("Results: ", props.resultsRef.current);
-        props.resultsRef.current = []; // Reset data
-      }
-
       clearInterval(runId);
       clearTimeout(testRunId);
     };

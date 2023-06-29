@@ -1,4 +1,5 @@
-import { useEffect, useState, Dispatch, SetStateAction } from "react";
+import { useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 interface Props {
   instructions: string[];
@@ -6,16 +7,16 @@ interface Props {
   load: string;
 }
 
-const AnimatedInstructions = (props: Props) => {
-  if (!props.instructions || props.instructions.length === 0) {
-    return null;
-  }
-
+const AnimatedInstructions = ({
+  instructions,
+  setLoadComponent,
+  load,
+}: Props) => {
   const instructionLength = 1000 * 5;
 
   const animationDuration = 300;
 
-  const tickLength = 25;
+  const tickLength = 35;
 
   const [displayInstruction, setDisplayInstruction] = useState("");
 
@@ -72,7 +73,7 @@ const AnimatedInstructions = (props: Props) => {
       return;
     }
 
-    animateInstructions(props.instructions);
+    animateInstructions(instructions);
 
     return () => {
       setInstructionStarted(false);
@@ -82,12 +83,12 @@ const AnimatedInstructions = (props: Props) => {
   // Typewriter effect
   useEffect(() => {
     let currentCharIndex = 0;
-    let currentWord = currentInstruction;
+    const currentWord = currentInstruction;
     let typedWord = "";
 
     if (currentCharIndex === currentInstruction.length) return;
 
-    let tickId = setInterval(() => {
+    const tickId = setInterval(() => {
       typedWord = currentWord.slice(0, currentCharIndex);
       setDisplayInstruction(typedWord);
 
@@ -102,12 +103,16 @@ const AnimatedInstructions = (props: Props) => {
   // Watch for EOF
   useEffect(() => {
     if (currentInstruction === "EOI") {
-      props.setLoadComponent(props.load);
+      setLoadComponent(load);
     }
   }, [currentInstruction]);
 
   if (currentInstruction === "EOI") {
     clearTimers();
+    return null;
+  }
+
+  if (!instructions || instructions.length === 0) {
     return null;
   }
 
