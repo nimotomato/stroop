@@ -1,4 +1,6 @@
-import { Dispatch, SetStateAction, MouseEventHandler } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
+
+import Countdown from "./Countdown";
 
 interface Props {
   startWhat: string;
@@ -8,18 +10,38 @@ interface Props {
 }
 
 const StartButton = (props: Props) => {
+  const countDownLength = 1000 * 5;
+
+  const [countDownTimer, setCountDownTimer] = useState(false);
+
   const handleOnClick = () => {
-    props.setLoadComponent(props.load);
-    props.setHasStarted(true);
+    setCountDownTimer((state) => {
+      return !state;
+    });
+
+    setTimeout(() => {
+      props.setLoadComponent(props.load);
+      props.setHasStarted(true);
+    }, countDownLength);
   };
 
   return (
-    <button
-      onClick={handleOnClick}
-      className="rounded bg-neutral-900 px-4 py-2 font-bold text-slate-200 hover:bg-neutral-950"
-    >
-      {`${props.startWhat}`}
-    </button>
+    <div>
+      {countDownTimer ? (
+        <Countdown
+          setCountDownTimer={setCountDownTimer}
+          timerHasStarted={countDownTimer}
+          countDownLength={countDownLength}
+        />
+      ) : (
+        <button
+          onClick={handleOnClick}
+          className="rounded bg-neutral-900 px-4 py-2 font-bold text-slate-200 hover:bg-neutral-950"
+        >
+          {`${props.startWhat}`}
+        </button>
+      )}
+    </div>
   );
 };
 

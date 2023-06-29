@@ -26,7 +26,7 @@ const Countdown = (props: Props) => {
   }, [props.timerHasStarted, timer]);
 
   return (
-    <div className="mb-60 mt-32 flex h-12 w-24 items-center justify-center border-2 border-solid border-black ">
+    <div className="flex h-12 w-24 items-center justify-center border-2 border-solid border-black ">
       {timer}
     </div>
   );

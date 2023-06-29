@@ -1,20 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
 
-import KeyboardInput from "./KeyboardInput";
-import Countdown from "./Countdown";
-import RenderTrial from "./RenderTrial";
 import MatchingColors from "./MatchingColors";
 import MisMatchingColors from "./MisMatchingColors";
 import AnimatedInstructions from "src/components/AnimatedInstructions";
 
-import {
-  initialInstructions,
-  keyboardInstructions,
-  matchingTestInstructions,
-  mismatchColorTextInstruction,
-  mismatchColorValueInstruction,
-  endInstruction,
-} from "src/data/instructions";
+import { i } from "src/data/instructions";
 import StartButton from "./StartButton";
 
 type ResultsItem = {
@@ -24,7 +14,11 @@ type ResultsItem = {
   responseTime: number;
 };
 
-const StroopTest = () => {
+interface Props {
+  setBackgroundColor: Dispatch<SetStateAction<string>>;
+}
+
+const StroopTest = (props: Props) => {
   // Map containing colors and corresponding RGB values
   const colors = ["red", "yellow", "green", "blue"];
 
@@ -46,31 +40,13 @@ const StroopTest = () => {
 
   const warmUpDuration = intervalLength + 1000 * 10;
 
-  const countDownLength = 1000 * 5;
-
   const [currentColorName, setCurrentColorName] = useState("");
 
   const [currentColorValue, setCurrentColorValue] = useState("");
 
-  const [countDownTimer, setCountDownTimer] = useState(false);
-
   const colorNameRef = useRef("");
 
   const colorValueRef = useRef("");
-
-  const handleStartButtonClick = () => {
-    setCountDownTimer((state) => {
-      return !state;
-    });
-
-    setTimeout(
-      () =>
-        setHasStarted((state) => {
-          return !state;
-        }),
-      countDownLength
-    );
-  };
 
   const getRandomInt = (max: number): number => {
     return Math.floor(Math.random() * max);
@@ -132,25 +108,28 @@ const StroopTest = () => {
         <AnimatedInstructions
           load={"keyboardInstructions"}
           setLoadComponent={setLoadComponent}
-          instructions={initialInstructions}
+          instructions={i.initialInstructions}
         />
       )}
+      {/* Show instructions on how to use keyboard */}
       {loadComponent === "keyboardInstructions" && (
         <AnimatedInstructions
-          load={"matchingColorWarmUpButton"}
+          load={"warmUpButton-1"}
           setLoadComponent={setLoadComponent}
-          instructions={keyboardInstructions}
+          instructions={i.keyboardInstructions}
         />
       )}
-      {loadComponent === "matchingColorWarmUpButton" && (
+      {/* Allow user to start the warm up */}
+      {loadComponent === "warmUpButton-1" && (
         <StartButton
           setLoadComponent={setLoadComponent}
-          load={"matchingColorWarmUp"}
+          load={"warmUp-1"}
           startWhat="matching color warm up."
           setHasStarted={setHasStarted}
         />
       )}
-      {loadComponent === "matchingColorWarmUp" && (
+      {/* Start warm up */}
+      {loadComponent === "warmUp-1" && (
         <MatchingColors
           stopTest={stopTest}
           getRandomInt={getRandomInt}
@@ -170,25 +149,28 @@ const StroopTest = () => {
           currentColorValue={currentColorValue}
           currentColorName={currentColorName}
           setLoadComponent={setLoadComponent}
-          load={"matchingColorTestButton"}
+          load={"testInstructions-1"}
         />
       )}
-      {loadComponent === "matchingColorTestButton" && (
+      {/* Instructions for the first test */}
+      {loadComponent === "testInstructions-1" && (
         <AnimatedInstructions
-          load={"startFirstTest"}
+          load={"testButton-1"}
           setLoadComponent={setLoadComponent}
-          instructions={matchingTestInstructions}
+          instructions={i.matchingTestInstructions}
         />
       )}
-      {loadComponent === "startFirstTest" && (
+      {/* Start button for first test */}
+      {loadComponent === "testButton-1" && (
         <StartButton
           setLoadComponent={setLoadComponent}
-          load={"matchingColorTest"}
+          load={"test-1"}
           startWhat="matching color test."
           setHasStarted={setHasStarted}
         />
       )}
-      {loadComponent === "matchingColorTest" && (
+      {/* First test */}
+      {loadComponent === "test-1" && (
         <MatchingColors
           stopTest={stopTest}
           getRandomInt={getRandomInt}
@@ -208,25 +190,28 @@ const StroopTest = () => {
           currentColorValue={currentColorValue}
           currentColorName={currentColorName}
           setLoadComponent={setLoadComponent}
-          load={"mismatchColorTextInstruction"}
+          load={"warmUpInstruction-2"}
         />
       )}
-      {loadComponent === "mismatchColorTextInstruction" && (
+      {/* Second test instructions */}
+      {loadComponent === "warmUpInstruction-2" && (
         <AnimatedInstructions
-          load={"mismatchColorWarmupButton"}
+          load={"warmUpButton-2"}
           setLoadComponent={setLoadComponent}
-          instructions={mismatchColorTextInstruction}
+          instructions={i.mismatchColorTextInstruction}
         />
       )}
-      {loadComponent === "mismatchColorWarmupButton" && (
+      {/* Start button for second warm up */}
+      {loadComponent === "warmUpButton-2" && (
         <StartButton
           setLoadComponent={setLoadComponent}
-          load={"misMatchColorWarmup"}
-          startWhat="matching color warm up."
+          load={"warmUp-2"}
+          startWhat="color text warm up."
           setHasStarted={setHasStarted}
         />
       )}
-      {loadComponent === "misMatchColorWarmup" && (
+      {/* Second warm up */}
+      {loadComponent === "warmUp-2" && (
         <MisMatchingColors
           stopTest={stopTest}
           getRandomInt={getRandomInt}
@@ -246,25 +231,28 @@ const StroopTest = () => {
           currentColorValue={currentColorValue}
           currentColorName={currentColorName}
           setLoadComponent={setLoadComponent}
-          load={"misMatchColorInstruction"}
+          load={"testInstructions-2"}
         />
       )}
-      {loadComponent === "misMatchColorInstruction" && (
+      {/* Second test instructions repeat */}
+      {loadComponent === "testInstructions-2" && (
         <AnimatedInstructions
-          load={"startMisMatchTestButton"}
+          load={"testButton-2"}
           setLoadComponent={setLoadComponent}
-          instructions={matchingTestInstructions}
+          instructions={i.mismatchColorTextInstructionRepeat}
         />
       )}
-      {loadComponent === "startMisMatchTestButton" && (
+      {/* Second test start button */}
+      {loadComponent === "testButton-2" && (
         <StartButton
           setLoadComponent={setLoadComponent}
-          load={"misMatchColorTest"}
-          startWhat="matching color test."
+          load={"test-2"}
+          startWhat="color text test."
           setHasStarted={setHasStarted}
         />
       )}
-      {loadComponent === "misMatchColorTest" && (
+      {/* Second test */}
+      {loadComponent === "test-2" && (
         <MisMatchingColors
           stopTest={stopTest}
           getRandomInt={getRandomInt}
@@ -284,25 +272,28 @@ const StroopTest = () => {
           currentColorValue={currentColorValue}
           currentColorName={currentColorName}
           setLoadComponent={setLoadComponent}
-          load={"misMatchColorValueInstruction"}
+          load={"warmUpInstructions-3"}
         />
       )}
-      {loadComponent === "misMatchColorValueInstruction" && (
+      {/* Third test instructions */}
+      {loadComponent === "warmUpInstructions-3" && (
         <AnimatedInstructions
-          load={"mismatchColorValueWarmupButton"}
+          load={"warmUpButton-3"}
           setLoadComponent={setLoadComponent}
-          instructions={mismatchColorValueInstruction}
+          instructions={i.mismatchColorValueInstruction}
         />
       )}
-      {loadComponent === "mismatchColorValueWarmupButton" && (
+      {/* Third warm up start button*/}
+      {loadComponent === "warmUpButton-3" && (
         <StartButton
           setLoadComponent={setLoadComponent}
-          load={"misMatchColorValueWarmup"}
-          startWhat="matching color warm up."
+          load={"warmUp-3"}
+          startWhat="font color warm up."
           setHasStarted={setHasStarted}
         />
       )}
-      {loadComponent === "misMatchColorValueWarmup" && (
+      {/* Third warm up*/}
+      {loadComponent === "warmUp-3" && (
         <MisMatchingColors
           stopTest={stopTest}
           getRandomInt={getRandomInt}
@@ -322,25 +313,28 @@ const StroopTest = () => {
           currentColorValue={currentColorValue}
           currentColorName={currentColorName}
           setLoadComponent={setLoadComponent}
-          load={"misMatchColorValueInstruction"}
+          load={"testInstructions-3"}
         />
       )}
-      {loadComponent === "misMatchColorValueInstruction" && (
+      {/* Third test instruction repeat*/}
+      {loadComponent === "testInstructions-3" && (
         <AnimatedInstructions
-          load={"startMisMatchValueTestButton"}
+          load={"testButton-3"}
           setLoadComponent={setLoadComponent}
-          instructions={matchingTestInstructions}
+          instructions={i.mismatchColorValueInstructionRepeat}
         />
       )}
-      {loadComponent === "startMisMatchValueTestButton" && (
+      {/* Third test start button*/}
+      {loadComponent === "testButton-3" && (
         <StartButton
           setLoadComponent={setLoadComponent}
-          load={"misMatchColorValueTest"}
-          startWhat="matching color test."
+          load={"test-3"}
+          startWhat="font color test."
           setHasStarted={setHasStarted}
         />
       )}
-      {loadComponent === "misMatchColorValueTest" && (
+      {/* Third test*/}
+      {loadComponent === "test-3" && (
         <MisMatchingColors
           stopTest={stopTest}
           getRandomInt={getRandomInt}
@@ -363,11 +357,12 @@ const StroopTest = () => {
           load={"end"}
         />
       )}
+      {/* End text */}
       {loadComponent === "end" && (
         <AnimatedInstructions
           load={""}
           setLoadComponent={setLoadComponent}
-          instructions={endInstruction}
+          instructions={i.endInstruction}
         />
       )}
     </div>

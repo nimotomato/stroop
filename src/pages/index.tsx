@@ -1,6 +1,7 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useState } from "react";
 
 import UserDetailsForm from "src/components/UserDetailsForm";
 import StroopTest from "src/components/StroopTest";
@@ -13,6 +14,7 @@ import {
 } from "@clerk/nextjs";
 
 const Home: NextPage = () => {
+  const [backgroundColor, setBackgroundColor] = useState("bg-slate-800");
   return (
     <>
       <Head>
@@ -24,13 +26,13 @@ const Home: NextPage = () => {
           url('https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&display=swap');
         </style>
       </Head>
-      <main className="h-screen bg-slate-800">
+      <main className={`h-screen ${backgroundColor}`}>
         <div className="text-slate-200">
           <SignedIn>
             <br />
             <UserDetailsForm />
 
-            <StroopTest />
+            <StroopTest setBackgroundColor={setBackgroundColor} />
             <SignOutButton />
           </SignedIn>
           <SignedOut>
