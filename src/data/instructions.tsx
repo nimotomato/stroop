@@ -32,13 +32,24 @@ export const matchingTestInstructions = [
 ];
 
 export const mismatchColorTextInstruction = [
-  "For the next two trials, the color text and color name will be different. ",
-  "Your job is to respond with the correct color name. ",
+  "Sweet!",
+  "For the next trial, the color text and color name will be different. ",
+  "Your job is to respond with the correct color name. I.e. read the word. ",
   "EOI",
 ];
 
 export const mismatchColorValueInstruction = [
-  "For the next two trials, the text color and color name will be different. ",
+  "Well done.",
+  "For the next trial, the text color and color name will still be different. ",
   "Your job is to respond with the correct text color. ",
+  "EOI",
+];
+
+export const endInstruction = [
+  "You have completed the test!",
+  "Thank you for your participation. ",
+  "Please feel free to take the test as many times as you like. ",
+  "Each test helps contribute to the normative test data. ",
+  "Fare the well, stranger. ",
   "EOI",
 ];

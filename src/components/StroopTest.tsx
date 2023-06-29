@@ -4,12 +4,16 @@ import KeyboardInput from "./KeyboardInput";
 import Countdown from "./Countdown";
 import RenderTrial from "./RenderTrial";
 import MatchingColors from "./MatchingColors";
+import MisMatchingColors from "./MisMatchingColors";
 import AnimatedInstructions from "src/components/AnimatedInstructions";
 
 import {
   initialInstructions,
   keyboardInstructions,
   matchingTestInstructions,
+  mismatchColorTextInstruction,
+  mismatchColorValueInstruction,
+  endInstruction,
 } from "src/data/instructions";
 import StartButton from "./StartButton";
 
@@ -82,50 +86,12 @@ const StroopTest = () => {
     });
   };
 
-  // Sets the colorname and colorvalue to match
-  const setHeteroColors = (colors: string[]) => {
-    const randomValueIndex = getRandomInt(colors.length);
-    let randomNameIndex = getRandomInt(colors.length);
-
-    while (randomNameIndex === randomValueIndex) {
-      randomNameIndex = getRandomInt(colors.length);
-    }
-
-    colorNameRef.current = colors[randomValueIndex]!;
-    colorValueRef.current = colors[randomNameIndex]!;
-
-    setCurrentColorName((currentColor) => {
-      if (currentColor !== "") {
-        return "";
-      } else {
-        return colors[randomValueIndex]!;
-      }
-    });
-
-    setCurrentColorValue((currentColor) => {
-      if (currentColor !== "") {
-        return "";
-      } else {
-        return colors[randomNameIndex]!;
-      }
-    });
-  };
-
   const stopTest = (testId: NodeJS.Timer | undefined) => {
     clearColors();
 
     clearInterval(testId);
 
     setHasStarted(false);
-  };
-
-  const runHeteroCondition = (): NodeJS.Timer | undefined => {
-    if (hasStarted) {
-      return setInterval(() => setHeteroColors(colors), intervalLength);
-    } else {
-      clearColors();
-    }
-    return undefined;
   };
 
   const handleResponse = (response: string) => {
@@ -138,24 +104,6 @@ const StroopTest = () => {
       responseTime: responseTimeRef.current,
     });
   };
-
-  // useEffect(() => {
-  //   const runId = runHeteroCondition();
-
-  //   const testRunId = setTimeout(() => stopTest(runId), activeTestDuration);
-
-  //   return () => {
-  //     // Log results
-  //     if (hasStarted) {
-  //       console.log("Results: ", resultsRef.current);
-  //       resultsRef.current = []; // Reset data
-  //     }
-
-  //     clearInterval(runId);
-
-  //     clearTimeout(testRunId);
-  //   };
-  // }, [hasStarted]);
 
   // Makes sure missed stimuli are logged.
   useEffect(() => {
@@ -174,6 +122,8 @@ const StroopTest = () => {
   }, [currentColorName]);
 
   const [loadComponent, setLoadComponent] = useState("initialInstructions");
+
+  if (loadComponent === "") return null;
 
   return (
     <div className="flex h-screen flex-col items-center justify-center text-slate-200">
@@ -259,6 +209,165 @@ const StroopTest = () => {
           currentColorName={currentColorName}
           setLoadComponent={setLoadComponent}
           load={"mismatchColorTextInstruction"}
+        />
+      )}
+      {loadComponent === "mismatchColorTextInstruction" && (
+        <AnimatedInstructions
+          load={"mismatchColorWarmupButton"}
+          setLoadComponent={setLoadComponent}
+          instructions={mismatchColorTextInstruction}
+        />
+      )}
+      {loadComponent === "mismatchColorWarmupButton" && (
+        <StartButton
+          setLoadComponent={setLoadComponent}
+          load={"misMatchColorWarmup"}
+          startWhat="matching color warm up."
+          setHasStarted={setHasStarted}
+        />
+      )}
+      {loadComponent === "misMatchColorWarmup" && (
+        <MisMatchingColors
+          stopTest={stopTest}
+          getRandomInt={getRandomInt}
+          colorNameRef={colorNameRef}
+          colorValueRef={colorValueRef}
+          resultsRef={resultsRef}
+          setCurrentColorName={setCurrentColorName}
+          setCurrentColorValue={setCurrentColorValue}
+          hasStarted={hasStarted}
+          colors={colors}
+          intervalLength={intervalLength}
+          activeTestDuration={warmUpDuration}
+          clearColors={clearColors}
+          setHasResponded={setHasResponded}
+          hasResponded={hasResponded}
+          handleResponse={handleResponse}
+          currentColorValue={currentColorValue}
+          currentColorName={currentColorName}
+          setLoadComponent={setLoadComponent}
+          load={"misMatchColorInstruction"}
+        />
+      )}
+      {loadComponent === "misMatchColorInstruction" && (
+        <AnimatedInstructions
+          load={"startMisMatchTestButton"}
+          setLoadComponent={setLoadComponent}
+          instructions={matchingTestInstructions}
+        />
+      )}
+      {loadComponent === "startMisMatchTestButton" && (
+        <StartButton
+          setLoadComponent={setLoadComponent}
+          load={"misMatchColorTest"}
+          startWhat="matching color test."
+          setHasStarted={setHasStarted}
+        />
+      )}
+      {loadComponent === "misMatchColorTest" && (
+        <MisMatchingColors
+          stopTest={stopTest}
+          getRandomInt={getRandomInt}
+          colorNameRef={colorNameRef}
+          colorValueRef={colorValueRef}
+          resultsRef={resultsRef}
+          setCurrentColorName={setCurrentColorName}
+          setCurrentColorValue={setCurrentColorValue}
+          hasStarted={hasStarted}
+          colors={colors}
+          intervalLength={intervalLength}
+          activeTestDuration={activeTestDuration}
+          clearColors={clearColors}
+          setHasResponded={setHasResponded}
+          hasResponded={hasResponded}
+          handleResponse={handleResponse}
+          currentColorValue={currentColorValue}
+          currentColorName={currentColorName}
+          setLoadComponent={setLoadComponent}
+          load={"misMatchColorValueInstruction"}
+        />
+      )}
+      {loadComponent === "misMatchColorValueInstruction" && (
+        <AnimatedInstructions
+          load={"mismatchColorValueWarmupButton"}
+          setLoadComponent={setLoadComponent}
+          instructions={mismatchColorValueInstruction}
+        />
+      )}
+      {loadComponent === "mismatchColorValueWarmupButton" && (
+        <StartButton
+          setLoadComponent={setLoadComponent}
+          load={"misMatchColorValueWarmup"}
+          startWhat="matching color warm up."
+          setHasStarted={setHasStarted}
+        />
+      )}
+      {loadComponent === "misMatchColorValueWarmup" && (
+        <MisMatchingColors
+          stopTest={stopTest}
+          getRandomInt={getRandomInt}
+          colorNameRef={colorNameRef}
+          colorValueRef={colorValueRef}
+          resultsRef={resultsRef}
+          setCurrentColorName={setCurrentColorName}
+          setCurrentColorValue={setCurrentColorValue}
+          hasStarted={hasStarted}
+          colors={colors}
+          intervalLength={intervalLength}
+          activeTestDuration={warmUpDuration}
+          clearColors={clearColors}
+          setHasResponded={setHasResponded}
+          hasResponded={hasResponded}
+          handleResponse={handleResponse}
+          currentColorValue={currentColorValue}
+          currentColorName={currentColorName}
+          setLoadComponent={setLoadComponent}
+          load={"misMatchColorValueInstruction"}
+        />
+      )}
+      {loadComponent === "misMatchColorValueInstruction" && (
+        <AnimatedInstructions
+          load={"startMisMatchValueTestButton"}
+          setLoadComponent={setLoadComponent}
+          instructions={matchingTestInstructions}
+        />
+      )}
+      {loadComponent === "startMisMatchValueTestButton" && (
+        <StartButton
+          setLoadComponent={setLoadComponent}
+          load={"misMatchColorValueTest"}
+          startWhat="matching color test."
+          setHasStarted={setHasStarted}
+        />
+      )}
+      {loadComponent === "misMatchColorValueTest" && (
+        <MisMatchingColors
+          stopTest={stopTest}
+          getRandomInt={getRandomInt}
+          colorNameRef={colorNameRef}
+          colorValueRef={colorValueRef}
+          resultsRef={resultsRef}
+          setCurrentColorName={setCurrentColorName}
+          setCurrentColorValue={setCurrentColorValue}
+          hasStarted={hasStarted}
+          colors={colors}
+          intervalLength={intervalLength}
+          activeTestDuration={activeTestDuration}
+          clearColors={clearColors}
+          setHasResponded={setHasResponded}
+          hasResponded={hasResponded}
+          handleResponse={handleResponse}
+          currentColorValue={currentColorValue}
+          currentColorName={currentColorName}
+          setLoadComponent={setLoadComponent}
+          load={"end"}
+        />
+      )}
+      {loadComponent === "end" && (
+        <AnimatedInstructions
+          load={""}
+          setLoadComponent={setLoadComponent}
+          instructions={endInstruction}
         />
       )}
     </div>
