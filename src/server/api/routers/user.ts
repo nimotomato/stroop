@@ -3,7 +3,7 @@ import {
   createTRPCRouter,
   publicProcedure,
   protectedProcedure,
-} from "~/server/api/trpc";
+} from "src/server/api/trpc";
 
 export const userRouter = createTRPCRouter({
   getAll: publicProcedure
