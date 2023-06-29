@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef, Dispatch, SetStateAction } from "react";
+import { useState, useEffect, useRef } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 import MatchingColors from "./MatchingColors";
 import MisMatchingColors from "./MisMatchingColors";
@@ -81,6 +82,18 @@ const StroopTest = (props: Props) => {
     });
   };
 
+  const resetResults = () => {
+    resultsRef.current = []; // Reset data
+
+    return true;
+  };
+
+  const sendResultsToDb = () => {
+    console.log("Results: ", resultsRef.current);
+
+    return true;
+  };
+
   // Makes sure missed stimuli are logged.
   useEffect(() => {
     if (hasStarted && currentColorName === "" && !hasResponded) {
@@ -97,7 +110,7 @@ const StroopTest = (props: Props) => {
     }
   }, [currentColorName]);
 
-  const [loadComponent, setLoadComponent] = useState("initialInstructions");
+  const [loadComponent, setLoadComponent] = useState("testButton-3");
 
   if (loadComponent === "") return null;
 
@@ -111,6 +124,7 @@ const StroopTest = (props: Props) => {
           instructions={i.initialInstructions}
         />
       )}
+      {loadComponent === "initialInstructions" && resetResults()}
       {/* Show instructions on how to use keyboard */}
       {loadComponent === "keyboardInstructions" && (
         <AnimatedInstructions
@@ -358,7 +372,7 @@ const StroopTest = (props: Props) => {
         />
       )}
       {/* End text */}
-      {loadComponent === "end" && (
+      {loadComponent === "end" && sendResultsToDb() && (
         <AnimatedInstructions
           load={""}
           setLoadComponent={setLoadComponent}

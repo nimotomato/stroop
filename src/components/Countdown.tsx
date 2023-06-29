@@ -1,4 +1,5 @@
-import { useEffect, useState, Dispatch, SetStateAction } from "react";
+import { useEffect, useState } from "react";
+import type { Dispatch, SetStateAction } from "react";
 
 interface Props {
   timerHasStarted: boolean;
@@ -26,7 +27,7 @@ const Countdown = (props: Props) => {
   }, [props.timerHasStarted, timer]);
 
   return (
-    <div className="flex h-12 w-24 items-center justify-center border-2 border-solid border-black ">
+    <div className="flex h-20 w-24 items-center justify-center border-2 border-solid border-black text-2xl ">
       {timer}
     </div>
   );
