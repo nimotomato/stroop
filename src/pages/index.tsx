@@ -1,6 +1,7 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 import UserDetailsForm from "src/components/UserDetailsForm";
 import StroopTest from "src/components/StroopTest";
@@ -14,6 +15,9 @@ import {
 
 const Home: NextPage = () => {
   const [backgroundColor, setBackgroundColor] = useState("bg-slate-800");
+
+  const [userEmail, setUserEmail] = useState("");
+
   return (
     <>
       <Head>
@@ -28,9 +32,11 @@ const Home: NextPage = () => {
         <div className="text-slate-200">
           <SignedIn>
             <br />
-            <UserDetailsForm />
-
-            <StroopTest setBackgroundColor={setBackgroundColor} />
+            <UserDetailsForm setUserEmail={setUserEmail} />
+            <StroopTest
+              userEmail={userEmail}
+              setBackgroundColor={setBackgroundColor}
+            />
             <SignOutButton />
           </SignedIn>
           <SignedOut>

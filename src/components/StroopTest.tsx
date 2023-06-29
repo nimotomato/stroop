@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import { api } from "src/utils/api";
 
 import MatchingColors from "./MatchingColors";
 import MisMatchingColors from "./MisMatchingColors";
@@ -17,6 +18,7 @@ type ResultsItem = {
 
 interface Props {
   setBackgroundColor: Dispatch<SetStateAction<string>>;
+  userEmail: string;
 }
 
 const StroopTest = (props: Props) => {
@@ -48,6 +50,8 @@ const StroopTest = (props: Props) => {
   const colorNameRef = useRef("");
 
   const colorValueRef = useRef("");
+
+  const [loadComponent, setLoadComponent] = useState("initialInstructions");
 
   const getRandomInt = (max: number): number => {
     return Math.floor(Math.random() * max);
@@ -88,11 +92,30 @@ const StroopTest = (props: Props) => {
     return true;
   };
 
+  // Sends test data to database
+  const sendData = api.test.sendData.useMutation();
+
   const sendResultsToDb = () => {
-    console.log("Results: ", resultsRef.current);
+    if (
+      !resultsRef.current ||
+      resultsRef.current.length === 0 ||
+      props.userEmail === ""
+    )
+      return;
+
+    sendData.mutate({
+      testScore: resultsRef.current,
+      testTaker: props.userEmail,
+    });
 
     return true;
   };
+
+  useEffect(() => {
+    if (loadComponent === "end") {
+      sendResultsToDb();
+    }
+  }, [loadComponent]);
 
   // Makes sure missed stimuli are logged.
   useEffect(() => {
@@ -109,8 +132,6 @@ const StroopTest = (props: Props) => {
       startTimeRef.current = performance.now();
     }
   }, [currentColorName]);
-
-  const [loadComponent, setLoadComponent] = useState("testButton-3");
 
   if (loadComponent === "") return null;
 
@@ -372,7 +393,7 @@ const StroopTest = (props: Props) => {
         />
       )}
       {/* End text */}
-      {loadComponent === "end" && sendResultsToDb() && (
+      {loadComponent === "end" && (
         <AnimatedInstructions
           load={""}
           setLoadComponent={setLoadComponent}
