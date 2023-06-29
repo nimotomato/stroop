@@ -115,6 +115,10 @@ const StroopTest = (props: Props) => {
     if (loadComponent === "end") {
       sendResultsToDb();
     }
+
+    if (loadComponent === "initialInstructions") {
+      resetResults();
+    }
   }, [loadComponent]);
 
   // Makes sure missed stimuli are logged.
@@ -145,7 +149,7 @@ const StroopTest = (props: Props) => {
           instructions={i.initialInstructions}
         />
       )}
-      {loadComponent === "initialInstructions" && resetResults()}
+      {loadComponent === "initialInstructions"}
       {/* Show instructions on how to use keyboard */}
       {loadComponent === "keyboardInstructions" && (
         <AnimatedInstructions
