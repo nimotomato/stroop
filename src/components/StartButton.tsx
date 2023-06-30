@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 import Countdown from "./Countdown";
@@ -26,6 +26,18 @@ const StartButton = (props: Props) => {
     }, countDownLength);
   };
 
+  useEffect(() => {
+    if (!countDownTimer) {
+      document.addEventListener("keydown", handleOnClick);
+    } else {
+      document.removeEventListener("keydown", handleOnClick);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleOnClick);
+    };
+  }, [countDownTimer]);
+
   return (
     <div>
       {countDownTimer ? (
@@ -35,9 +47,14 @@ const StartButton = (props: Props) => {
           countDownLength={countDownLength}
         />
       ) : (
-        <button onClick={handleOnClick} className="btn">
-          {`${props.startWhat}`}
-        </button>
+        <span>
+          <button onClick={handleOnClick} className="btn">
+            {`${props.startWhat}`}
+          </button>
+          <p className="text-center text-sm text-slate-400">
+            press any key to continue
+          </p>
+        </span>
       )}
     </div>
   );
