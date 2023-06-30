@@ -9,11 +9,16 @@ import AnimatedInstructions from "src/components/AnimatedInstructions";
 import { i } from "src/data/instructions";
 import StartButton from "./StartButton";
 
-type ResultsItem = {
-  colorName: string;
-  colorValue: string;
-  response: string;
-  responseTime: number;
+type ResultSumItem = {
+  trial: string;
+  results: [
+    {
+      colorName: string;
+      colorValue: string;
+      response: string;
+      responseTime: number;
+    }
+  ];
 };
 
 interface Props {
@@ -28,7 +33,7 @@ const StroopTest = (props: Props) => {
 
   const [hasStarted, setHasStarted] = useState(false);
 
-  const resultsRef = useRef<ResultsItem[]>([]);
+  const resultsRef = useRef(new Map());
 
   const startTimeRef = useRef(0);
 
@@ -52,7 +57,7 @@ const StroopTest = (props: Props) => {
 
   const colorValueRef = useRef("");
 
-  const [loadComponent, setLoadComponent] = useState("initialInstructions");
+  const [loadComponent, setLoadComponent] = useState("start");
 
   const getRandomInt = (max: number): number => {
     return Math.floor(Math.random() * max);
@@ -79,7 +84,11 @@ const StroopTest = (props: Props) => {
   const handleResponse = (response: string) => {
     responseTimeRef.current = performance.now() - startTimeRef.current;
 
-    resultsRef.current.push({
+    if (!resultsRef.current.has(loadComponent)) {
+      resultsRef.current.set(loadComponent, []);
+    }
+
+    resultsRef.current.get(loadComponent).push({
       colorName: colorNameRef.current,
       colorValue: colorValueRef.current,
       response: response,
@@ -88,7 +97,7 @@ const StroopTest = (props: Props) => {
   };
 
   const resetResults = () => {
-    resultsRef.current = []; // Reset data
+    resultsRef.current.clear; // Reset data
 
     return true;
   };
@@ -99,13 +108,23 @@ const StroopTest = (props: Props) => {
   const sendResultsToDb = () => {
     if (
       !resultsRef.current ||
-      resultsRef.current.length === 0 ||
+      resultsRef.current.size === 0 ||
       props.userEmail === ""
     )
       return;
 
+    const results: ResultSumItem[] = [];
+
+    resultsRef.current.forEach((value, key) => {
+      const myObj: ResultSumItem = { trial: key, results: value };
+
+      results.push(myObj);
+    });
+
+    console.log(results);
+
     sendData.mutate({
-      testScore: resultsRef.current,
+      testScore: results,
       testTaker: props.userEmail,
     });
 
@@ -113,11 +132,13 @@ const StroopTest = (props: Props) => {
   };
 
   useEffect(() => {
+    // Sends results to DB
     if (loadComponent === "end") {
       sendResultsToDb();
     }
 
-    if (loadComponent === "initialInstructions") {
+    // Clears results
+    if (loadComponent === "start") {
       resetResults();
     }
   }, [loadComponent]);
@@ -146,14 +167,13 @@ const StroopTest = (props: Props) => {
   return (
     <div className="flex h-screen flex-col items-center justify-center text-slate-200">
       {/* On load, display initial instructions in the center of the screen. */}
-      {loadComponent === "initialInstructions" && (
+      {loadComponent === "start" && (
         <AnimatedInstructions
           load={"keyboardInstructions"}
           setLoadComponent={setLoadComponent}
           instructions={i.initialInstructions}
         />
       )}
-      {loadComponent === "initialInstructions"}
       {/* Show instructions on how to use keyboard */}
       {loadComponent === "keyboardInstructions" && (
         <AnimatedInstructions

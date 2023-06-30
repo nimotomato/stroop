@@ -5,6 +5,15 @@ import {
   protectedProcedure,
 } from "src/server/api/trpc";
 
+const InputSchema = z.object({
+  trial: z.array(z.object({
+    colorName: z.string(),
+    colorValue: z.string(),
+    response: z.string(),
+    responseTime: z.number(),
+  }))
+});
+
 export const userRouter = createTRPCRouter({
   getAll: publicProcedure
   .input(z.object({ email: z.string() }))
