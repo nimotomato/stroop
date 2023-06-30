@@ -33,7 +33,7 @@ const StroopTest = (props: Props) => {
 
   const [hasStarted, setHasStarted] = useState(false);
 
-  const resultsRef = useRef(new Map());
+  const resultsRef = useRef(new Map<string, ResultSumItem["results"]>());
 
   const startTimeRef = useRef(0);
 
@@ -85,19 +85,26 @@ const StroopTest = (props: Props) => {
     responseTimeRef.current = performance.now() - startTimeRef.current;
 
     if (!resultsRef.current.has(loadComponent)) {
-      resultsRef.current.set(loadComponent, []);
+      resultsRef.current.set(loadComponent, [
+        {
+          colorName: colorNameRef.current,
+          colorValue: colorValueRef.current,
+          response: response,
+          responseTime: responseTimeRef.current,
+        },
+      ]);
+    } else {
+      resultsRef.current.get(loadComponent)?.push({
+        colorName: colorNameRef.current,
+        colorValue: colorValueRef.current,
+        response: response,
+        responseTime: responseTimeRef.current,
+      });
     }
-
-    resultsRef.current.get(loadComponent).push({
-      colorName: colorNameRef.current,
-      colorValue: colorValueRef.current,
-      response: response,
-      responseTime: responseTimeRef.current,
-    });
   };
 
   const resetResults = () => {
-    resultsRef.current.clear; // Reset data
+    resultsRef.current.clear(); // Reset data
 
     return true;
   };
