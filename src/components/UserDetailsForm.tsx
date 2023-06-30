@@ -6,9 +6,13 @@ import type { Dispatch, SetStateAction } from "react";
 
 interface Props {
   setUserEmail: Dispatch<SetStateAction<string>>;
+  setIsRegistered: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function UserDetailsForm({ setUserEmail }: Props) {
+export default function UserDetailsForm({
+  setUserEmail,
+  setIsRegistered,
+}: Props) {
   const { user } = useUser();
 
   const userEmail = user?.primaryEmailAddress?.emailAddress;
@@ -86,80 +90,108 @@ export default function UserDetailsForm({ setUserEmail }: Props) {
     if (userEmail) setUserEmail(userEmail);
   }, [userEmail]);
 
+  useEffect(() => {
+    if (userData.data && userData.data.length !== 0) {
+      setIsRegistered(true);
+    }
+  });
+
   if (userData.data && userData.data.length === 1) {
     return;
   }
 
   return (
-    <div>
-      <form id="registrationForm">
-        Register
-        <br />
-        <label> Email: </label>
-        <br />
-        <input
-          className="text-slate-600"
-          type="text"
-          id="email"
-          value={userEmail || ""}
-          readOnly
-        ></input>
-        <br />
-        <label> Gender: </label>
-        <br />
-        <select
-          className="text-slate-600"
-          id="gender"
-          placeholder="male/female/unspecified"
-          onChange={handleChange}
+    <div className="flex flex-col items-center" style={{ height: "90vh" }}>
+      <h1 className="translate-y-16 text-center text-4xl uppercase">
+        user registration
+      </h1>
+      <div className="flex translate-y-36 flex-col items-center justify-center">
+        <form className=" p-4" id="registrationForm">
+          <br />
+          <label> Email: </label>
+          <br />
+          <input
+            className="mb-2 text-slate-600"
+            type="text"
+            id="email"
+            value={userEmail || ""}
+            readOnly
+          ></input>
+          <br />
+          <label> Gender: </label>
+          <br />
+          <select
+            className="mb-2 text-slate-600"
+            id="gender"
+            placeholder="male/female/unspecified"
+            onChange={handleChange}
+          >
+            <option value="">select</option>
+            <option value="male">male</option>
+            <option value="female">female</option>
+            <option value="unspecified">unspecified</option>
+          </select>
+          <br />
+          <label> Date of birth: </label>
+          <br />
+          <input
+            className="mb-2 text-slate-600"
+            type="date"
+            id="dateOfBirth"
+            placeholder="yyyy-mm-dd"
+            onChange={handleChange}
+          ></input>
+          <br />
+          <label> Current occupation: </label>
+          <br />
+          <input
+            className="mb-2 text-slate-600"
+            type="text"
+            id="currentOccupation"
+            onChange={handleChange}
+          ></input>
+          <br />
+          <label> Highest completed education: </label>
+          <br />
+          <select
+            className="mb-2 text-slate-600"
+            id="highestEdu"
+            onChange={handleChange}
+          >
+            <option value="">select</option>
+            <option value="primary school">primary school</option>
+            <option value="high school">high school</option>
+            <option value="college/gymnasium">college/gymnasium</option>
+            <option value="bachelor">bachelor</option>
+            <option value="master">master</option>
+            <option value="doctoral">doctoral</option>
+          </select>
+          <br />
+        </form>
+        <div className="dataInfoContainer text w-2/3 max-w-5xl pt-6 text-justify text-sm">
+          <p className="dataInfo p-2">
+            To be able to take the test, you must register a user!
+          </p>
+          <p className="dataInfo p-2">
+            The data you enter will be saved along with test data, i.e. response
+            times and other test-related data. This data is absolutely
+            neccessary to collect as it forms norms for the scores.
+          </p>
+          <p className="dataInfo p-2">
+            As I'm not sure what to do with the test data long term, please
+            consider that it might be used for scientific or commercial use. By
+            submitting this form you agree to any usage. If you wish to delete
+            the data, simply send an email to the contact details below.
+          </p>
+        </div>
+        <button
+          className="btn m-6"
+          form="registrationForm"
+          onClick={handleSubmit}
         >
-          <option value="">select</option>
-          <option value="male">male</option>
-          <option value="female">female</option>
-          <option value="unspecified">unspecified</option>
-        </select>
-        <br />
-        <label> Date of birth: </label>
-        <br />
-        <input
-          className="text-slate-600"
-          type="date"
-          id="dateOfBirth"
-          placeholder="yyyy-mm-dd"
-          onChange={handleChange}
-        ></input>
-        <br />
-        <label> Current occupation: </label>
-        <br />
-        <input
-          className="text-slate-600"
-          type="text"
-          id="currentOccupation"
-          onChange={handleChange}
-        ></input>
-        <br />
-        <label> Highest completed education: </label>
-        <br />
-        <select
-          className="text-slate-600"
-          id="highestEdu"
-          onChange={handleChange}
-        >
-          <option value="">select</option>
-          <option value="5">5 years</option>
-          <option value="10">10 years</option>
-          <option value="15">15 years</option>
-          <option value="20"> 20 years</option>
-        </select>
-        <br />
-      </form>
-      <button
-        className="bg-black"
-        form="registrationForm"
-        onClick={handleSubmit}
-      >
-        Submit
-      </button>
+          Submit
+        </button>
+      </div>
     </div>
   );
 }

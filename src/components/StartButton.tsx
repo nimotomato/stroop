@@ -35,10 +35,7 @@ const StartButton = (props: Props) => {
           countDownLength={countDownLength}
         />
       ) : (
-        <button
-          onClick={handleOnClick}
-          className="rounded bg-neutral-900 px-4 py-2 font-bold text-slate-200 hover:bg-neutral-950"
-        >
+        <button onClick={handleOnClick} className="btn">
           {`${props.startWhat}`}
         </button>
       )}

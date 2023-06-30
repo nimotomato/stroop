@@ -1,7 +1,6 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
-import { useUser } from "@clerk/nextjs";
 
 import UserDetailsForm from "src/components/UserDetailsForm";
 import StroopTest from "src/components/StroopTest";
@@ -17,6 +16,7 @@ const Home: NextPage = () => {
   const [backgroundColor, setBackgroundColor] = useState("bg-slate-800");
 
   const [userEmail, setUserEmail] = useState("");
+  const [isRegistered, setIsRegistered] = useState(false);
 
   return (
     <>
@@ -29,15 +29,22 @@ const Home: NextPage = () => {
         </style>
       </Head>
       <main className={`h-screen ${backgroundColor}`}>
-        <div className="text-slate-200">
+        <div className="flex flex-col text-slate-200">
           <SignedIn>
+            <div className="m-4 flex items-center justify-end">
+              <SignOutButton />
+            </div>
             <br />
-            <UserDetailsForm setUserEmail={setUserEmail} />
-            <StroopTest
-              userEmail={userEmail}
-              setBackgroundColor={setBackgroundColor}
+            <UserDetailsForm
+              setUserEmail={setUserEmail}
+              setIsRegistered={setIsRegistered}
             />
-            <SignOutButton />
+            {isRegistered && (
+              <StroopTest
+                userEmail={userEmail}
+                setBackgroundColor={setBackgroundColor}
+              />
+            )}
           </SignedIn>
           <SignedOut>
             <SignInButton />
