@@ -9,19 +9,12 @@ type clearColors = () => void;
 type stopTest = (testId: NodeJS.Timer | undefined) => void;
 type handleResponseFunction = (arg1: string) => void;
 
-type ResultsItem = {
-  colorName: string;
-  colorValue: string;
-  response: string;
-  responseTime: number;
-};
-
 interface Props {
   stopTest: stopTest;
   getRandomInt: getRandomInt;
   colorNameRef: MutableRefObject<string>;
   colorValueRef: MutableRefObject<string>;
-  resultsRef: MutableRefObject<ResultsItem[]>;
+  resultsRef: MutableRefObject<Map<any, any>>;
   setCurrentColorName: Dispatch<SetStateAction<string>>;
   setCurrentColorValue: Dispatch<SetStateAction<string>>;
   hasStarted: boolean;
