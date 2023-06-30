@@ -18,7 +18,12 @@ const Stroop: NextPage = () => {
 
   useEffect(() => {
     if (testHasFinished) {
-      router.push("/");
+      router
+        .push("/")
+        .then(() => {
+          console.log();
+        })
+        .catch((e) => console.error(e));
     }
   });
 

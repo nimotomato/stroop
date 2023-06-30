@@ -50,7 +50,15 @@ const Home: NextPage = () => {
                 <div className="w-16">
                   <button
                     className="btn"
-                    onClick={() => router.push("/stroop")}
+                    onClick={() => {
+                      router
+                        .push("/stroop")
+                        .then(() => {
+                          console.log();
+                        })
+                        .catch((e) => console.error(e));
+                      return;
+                    }}
                   >
                     <span className="text-yellow-300">s</span>
                     <span className="text-red-600">t</span>

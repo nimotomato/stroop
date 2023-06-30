@@ -178,7 +178,7 @@ export default function UserDetailsForm({ setIsRegistered }: Props) {
             neccessary to collect as it forms norms for the scores.
           </p>
           <p className="dataInfo p-2">
-            As I'm not sure what to do with the test data long term, please
+            As I&apos;m not sure what to do with the test data long term, please
             consider that it might be used for scientific or commercial use. By
             submitting this form you agree to any usage. If you wish to delete
             the data, simply send an email to the contact details below.
