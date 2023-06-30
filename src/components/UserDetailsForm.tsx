@@ -105,13 +105,13 @@ export default function UserDetailsForm({
       <h1 className="translate-y-16 text-center text-4xl uppercase">
         user registration
       </h1>
-      <div className="flex translate-y-36 flex-col items-center justify-center">
+      <div className="flex translate-y-32 flex-col items-center justify-center">
         <form className=" p-4" id="registrationForm">
           <br />
           <label> Email: </label>
           <br />
           <input
-            className="mb-2 text-slate-600"
+            className="mb-2 w-60 p-2 text-sm text-slate-600"
             type="text"
             id="email"
             value={userEmail || ""}
@@ -121,7 +121,7 @@ export default function UserDetailsForm({
           <label> Gender: </label>
           <br />
           <select
-            className="mb-2 text-slate-600"
+            className="mb-2 w-60 p-2 text-sm  text-slate-600"
             id="gender"
             placeholder="male/female/unspecified"
             onChange={handleChange}
@@ -135,7 +135,7 @@ export default function UserDetailsForm({
           <label> Date of birth: </label>
           <br />
           <input
-            className="mb-2 text-slate-600"
+            className="mb-2 w-60 p-2 text-sm  text-slate-600"
             type="date"
             id="dateOfBirth"
             placeholder="yyyy-mm-dd"
@@ -145,7 +145,7 @@ export default function UserDetailsForm({
           <label> Current occupation: </label>
           <br />
           <input
-            className="mb-2 text-slate-600"
+            className="mb-2 w-60 p-2 text-sm text-slate-600"
             type="text"
             id="currentOccupation"
             onChange={handleChange}
@@ -154,7 +154,7 @@ export default function UserDetailsForm({
           <label> Highest completed education: </label>
           <br />
           <select
-            className="mb-2 text-slate-600"
+            className="mb-2 w-60 p-2 text-sm text-slate-600"
             id="highestEdu"
             onChange={handleChange}
           >

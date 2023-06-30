@@ -50,6 +50,9 @@ const Home: NextPage = () => {
             <SignInButton />
           </SignedOut>
         </div>
+        <footer className="pl-2 text-xs">
+          email: stroopinfo@mailfence.com
+        </footer>
       </main>
     </>
   );
