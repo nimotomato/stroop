@@ -5,14 +5,10 @@ import { isValid } from "date-fns";
 import type { Dispatch, SetStateAction } from "react";
 
 interface Props {
-  setUserEmail: Dispatch<SetStateAction<string>>;
   setIsRegistered: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function UserDetailsForm({
-  setUserEmail,
-  setIsRegistered,
-}: Props) {
+export default function UserDetailsForm({ setIsRegistered }: Props) {
   const { user } = useUser();
 
   const userEmail = user?.primaryEmailAddress?.emailAddress;
@@ -87,10 +83,6 @@ export default function UserDetailsForm({
   };
 
   useEffect(() => {
-    if (userEmail) setUserEmail(userEmail);
-  }, [userEmail]);
-
-  useEffect(() => {
     if (userData.data && userData.data.length !== 0) {
       setIsRegistered(true);
     }
@@ -103,10 +95,18 @@ export default function UserDetailsForm({
   return (
     <div className="flex flex-col items-center" style={{ height: "90vh" }}>
       <h1 className="translate-y-16 text-center text-4xl uppercase">
-        user registration
+        <span className="text-yellow-300">u</span>
+        <span className="text-red-600">s</span>
+        <span className="text-blue-600">e</span>
+        <span className="text-green-600">r</span>
+        <span> </span>
+        <span className="text-green-600">i</span>
+        <span className="text-blue-600">n</span>
+        <span className="text-red-600">f</span>
+        <span className="text-yellow-300">o</span>
       </h1>
       <div className="flex translate-y-32 flex-col items-center justify-center">
-        <form className=" p-4" id="registrationForm">
+        <form className="bg-slate-900 p-4" id="registrationForm">
           <br />
           <label> Email: </label>
           <br />
@@ -168,9 +168,9 @@ export default function UserDetailsForm({
           </select>
           <br />
         </form>
-        <div className="dataInfoContainer text w-2/3 max-w-5xl pt-6 text-justify text-sm">
+        <div className="dataInfoContainer text n mt-8 w-1/2 max-w-5xl bg-slate-900 text-justify text-sm">
           <p className="dataInfo p-2">
-            To be able to take the test, you must register a user!
+            To take the test you must fill in this user information.
           </p>
           <p className="dataInfo p-2">
             The data you enter will be saved along with test data, i.e. response

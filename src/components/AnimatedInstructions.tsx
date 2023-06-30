@@ -104,6 +104,7 @@ const AnimatedInstructions = ({
   useEffect(() => {
     if (currentInstruction === "EOI") {
       setLoadComponent(load);
+      clearTimers();
     }
   }, [currentInstruction]);
 

@@ -18,6 +18,7 @@ type ResultsItem = {
 
 interface Props {
   setBackgroundColor: Dispatch<SetStateAction<string>>;
+  setTestHasFinished: Dispatch<SetStateAction<boolean>>;
   userEmail: string;
 }
 
@@ -137,7 +138,10 @@ const StroopTest = (props: Props) => {
     }
   }, [currentColorName]);
 
-  if (loadComponent === "") return null;
+  if (loadComponent === "") {
+    props.setTestHasFinished(true);
+    return null;
+  }
 
   return (
     <div className="flex h-screen flex-col items-center justify-center text-slate-200">
