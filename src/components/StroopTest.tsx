@@ -44,12 +44,12 @@ const StroopTest = (props: Props) => {
   const [hasResponded, setHasResponded] = useState(false); // This is used to restrict test taker to only respond once.
 
   // Contols how quickly the colors switch. Measured in ms.
-  const intervalLength = 1000 * 1;
+  const intervalLength = 1500 * 1;
 
-  // This needs an extra intervalLength to not shut down repsonses too early.
-  const activeTestDuration = intervalLength + 1000 * 60;
+  // This needs an extra intervalLength to not shut down responses too early.
+  const activeTestDuration = intervalLength + 1500 * 60;
 
-  const warmUpDuration = intervalLength + 1000 * 12;
+  const warmUpDuration = intervalLength + 1500 * 12;
 
   const errorFlashColor = "bg-red-500";
 
