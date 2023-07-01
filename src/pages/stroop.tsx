@@ -13,6 +13,7 @@ const Stroop: NextPage = () => {
 
   const { user } = useUser();
   const router = useRouter();
+  const defaultBgColor = "bg-slate-800";
 
   const userEmail = user?.primaryEmailAddress?.emailAddress;
 
@@ -44,6 +45,7 @@ const Stroop: NextPage = () => {
           <SignedIn>
             {userEmail && (
               <StroopTest
+                defaultBgColor="defaultBgColor"
                 userEmail={userEmail}
                 setBackgroundColor={setBackgroundColor}
                 setTestHasFinished={setTestHasFinished}

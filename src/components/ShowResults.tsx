@@ -14,15 +14,20 @@ type ResultSumItem = {
   ];
 };
 
-type ResultItem = {
-  colorName: string;
-  colorValue: string;
-  response: string;
-  responseTime: number;
-};
-
 interface Props {
-  resultsRef: MutableRefObject<Map<any, any>>;
+  resultsRef: MutableRefObject<
+    Map<
+      string,
+      [
+        {
+          colorName: string;
+          colorValue: string;
+          response: string;
+          responseTime: number;
+        }
+      ]
+    >
+  >;
   errorsRef: MutableRefObject<number>;
 }
 
@@ -34,8 +39,8 @@ const ShowResults = ({ resultsRef, errorsRef }: Props) => {
     let totalResponses = 0;
     let responseTimes = 0;
 
-    resultsRef.current.forEach((value, key) => {
-      value.forEach((trialResults: ResultItem) => {
+    resultsRef.current.forEach((value, _key) => {
+      value.forEach((trialResults) => {
         responseTimes += trialResults.responseTime;
         totalResponses += 1;
       });
