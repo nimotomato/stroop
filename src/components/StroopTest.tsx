@@ -49,6 +49,12 @@ const StroopTest = (props: Props) => {
 
   const warmUpDuration = intervalLength + 1000 * 10;
 
+  const errorFlashColor = "bg-red-500";
+
+  const defaultBgColor = "bg-slate-800";
+
+  const flashTime = 75;
+
   const [currentColorName, setCurrentColorName] = useState("");
 
   const [currentColorValue, setCurrentColorValue] = useState("");
@@ -93,18 +99,16 @@ const StroopTest = (props: Props) => {
       (currentTrial === "warmUp-1" || currentTrial === "warmUp-2") &&
       colorNameRef.current !== response
     ) {
-      const flashTime = 75;
       props.setBackgroundColor("bg-rose-700");
 
-      setTimeout(() => props.setBackgroundColor("bg-slate-800"), flashTime);
+      setTimeout(() => props.setBackgroundColor(defaultBgColor), flashTime);
     } else if (
       currentTrial === "warmUp-3" &&
       colorValueRef.current !== response
     ) {
-      const flashTime = 75;
-      props.setBackgroundColor("bg-rose-700");
+      props.setBackgroundColor(errorFlashColor);
 
-      setTimeout(() => props.setBackgroundColor("bg-slate-800"), flashTime);
+      setTimeout(() => props.setBackgroundColor(defaultBgColor), flashTime);
     }
   };
 
