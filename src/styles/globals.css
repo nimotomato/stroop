@@ -13,3 +13,10 @@
 
 body{
     font-family: 'Fira Mono', monospace;}
+
+.disable-select {
+  -webkit-user-select: none;  
+  -moz-user-select: none;    
+  -ms-user-select: none;      
+  user-select: none;
+}

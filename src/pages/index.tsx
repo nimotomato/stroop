@@ -17,6 +17,8 @@ const Home: NextPage = () => {
 
   const router = useRouter();
 
+  const defaultBgColor = "bg-slate-800";
+
   return (
     <>
       <Head>
@@ -26,7 +28,7 @@ const Home: NextPage = () => {
           {`@import url('https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&display=swap');`}
         </style>
       </Head>
-      <main className="h-screen bg-slate-800">
+      <main className={`h-screen ${defaultBgColor}`}>
         <div
           style={{ height: "96vh" }}
           className="flex flex-col text-slate-200"
@@ -43,8 +45,8 @@ const Home: NextPage = () => {
               <UserDetailsForm setIsRegistered={setIsRegistered} />
             )}
             {isRegistered && (
-              <div className="flex h-4/6 flex-col items-center justify-center">
-                <h2 className="m-4">Choose a test to take!</h2>
+              <div className="disable-select flex h-4/6 flex-col items-center justify-center">
+                <h2 className="m-4 ">Choose a test to take!</h2>
                 <div className="w-16">
                   <button
                     className="btn"

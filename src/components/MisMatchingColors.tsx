@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-
 import type { Dispatch, SetStateAction, MutableRefObject } from "react";
 
 import RenderTrial from "./RenderTrial";
