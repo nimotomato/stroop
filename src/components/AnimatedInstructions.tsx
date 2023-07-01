@@ -79,7 +79,7 @@ const AnimatedInstructions = ({
   }, [stopInstructions]);
 
   useEffect(() => {
-    let index = currentIndex;
+    const index = currentIndex;
     nextIndexRef.current = index + 1;
   }, [currentIndex]);
 
