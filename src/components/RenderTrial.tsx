@@ -14,7 +14,7 @@ interface Props {
 
 const RenderTrial = (props: Props) => {
   return (
-    <div className="flex flex-col items-center justify-center">
+    <div className="disable-select flex flex-col items-center justify-center">
       <div className="stroop keyboard-input">
         <KeyboardInput
           setHasResponded={props.setHasResponded}

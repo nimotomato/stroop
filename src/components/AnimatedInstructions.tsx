@@ -92,17 +92,14 @@ const AnimatedInstructions = ({
   }
 
   return (
-    <div
-      style={{ height: "96vh" }}
-      className="flex flex-col items-center justify-center text-center"
-    >
+    <div className="disable-select flex flex-col items-center justify-center text-center ">
       <div
-        className={`flex h-full w-48 flex-col items-center justify-center text-left`}
+        className={`w-54 flex h-full flex-col items-center justify-center text-left`}
       >
         <div className="h-1/6">{displayInstruction}</div>
         <div className="flex w-full justify-end">
           <button
-            className="btn mt-8 w-fit p-1 text-sm "
+            className="btn mt-8 w-fit pl-2 pr-2 text-sm"
             onClick={handleOnClick}
           >
             next<span className="text-green-600">.</span>

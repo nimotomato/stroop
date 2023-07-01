@@ -26,20 +26,33 @@ const StartButton = (props: Props) => {
     }, countDownLength);
   };
 
+  const handleOnButtonPress = (e: KeyboardEvent) => {
+    if (!(e.code === "Space" || e.code === "Enter")) return;
+
+    setCountDownTimer((state) => {
+      return !state;
+    });
+
+    setTimeout(() => {
+      props.setLoadComponent(props.load);
+      props.setHasStarted(true);
+    }, countDownLength);
+  };
+
   useEffect(() => {
     if (!countDownTimer) {
-      document.addEventListener("keydown", handleOnClick);
+      document.addEventListener("keydown", handleOnButtonPress);
     } else {
-      document.removeEventListener("keydown", handleOnClick);
+      document.removeEventListener("keydown", handleOnButtonPress);
     }
 
     return () => {
-      document.removeEventListener("keydown", handleOnClick);
+      document.removeEventListener("keydown", handleOnButtonPress);
     };
   }, [countDownTimer]);
 
   return (
-    <div>
+    <div className="disable-select">
       {countDownTimer ? (
         <Countdown
           setCountDownTimer={setCountDownTimer}
@@ -51,9 +64,7 @@ const StartButton = (props: Props) => {
           <button onClick={handleOnClick} className="btn">
             {`${props.startWhat}`}
           </button>
-          <p className="text-center text-sm text-slate-400">
-            press any key to continue
-          </p>
+          <p className="text-center text-sm text-slate-400">continue...</p>
         </span>
       )}
     </div>

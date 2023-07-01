@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from "react";
 import type { Dispatch, SetStateAction } from "react";
-import { api } from "src/utils/api";
 
 import MatchingColors from "./MatchingColors";
 import MisMatchingColors from "./MisMatchingColors";
 import AnimatedInstructions from "src/components/AnimatedInstructions";
-
-import { i } from "src/data/instructions";
 import StartButton from "./StartButton";
+import ShowResults from "./ShowResults";
+
+import { api } from "src/utils/api";
+import { i } from "src/data/instructions";
 
 type ResultSumItem = {
   trial: string;
@@ -22,6 +23,7 @@ type ResultSumItem = {
 };
 
 interface Props {
+  defaultBgColor: string;
   setBackgroundColor: Dispatch<SetStateAction<string>>;
   setTestHasFinished: Dispatch<SetStateAction<boolean>>;
   userEmail: string;
@@ -51,8 +53,6 @@ const StroopTest = (props: Props) => {
 
   const errorFlashColor = "bg-red-500";
 
-  const defaultBgColor = "bg-slate-800";
-
   const flashTime = 75;
 
   const [currentColorName, setCurrentColorName] = useState("");
@@ -63,9 +63,11 @@ const StroopTest = (props: Props) => {
 
   const colorValueRef = useRef("");
 
-  const [loadComponent, setLoadComponent] = useState("warmUpButton-1");
+  const [loadComponent, setLoadComponent] = useState("testButton-3");
 
   const [response, setResponse] = useState("");
+
+  const errorsRef = useRef(0);
 
   const getRandomInt = (max: number): number => {
     return Math.floor(Math.random() * max);
@@ -89,26 +91,47 @@ const StroopTest = (props: Props) => {
     setHasStarted(false);
   };
 
-  const handleWarmupErrors = (response: string) => {
+  const handleErrors = (response: string) => {
     if (!hasStarted || !hasResponded || response === "") return;
 
     const currentTrial = loadComponent;
 
-    // Warm up 1 and 2 are checked by the same algo
+    // These just add to local error counter
+    if (
+      (currentTrial === "test-1" || currentTrial === "test-2") &&
+      colorNameRef.current !== response
+    ) {
+      errorsRef.current += 1;
+    } else if (
+      currentTrial === "test-3" &&
+      colorValueRef.current !== response
+    ) {
+      errorsRef.current += 1;
+    }
+
+    // Warmup also makes screen go red
     if (
       (currentTrial === "warmUp-1" || currentTrial === "warmUp-2") &&
       colorNameRef.current !== response
     ) {
       props.setBackgroundColor("bg-rose-700");
+      errorsRef.current += 1;
 
-      setTimeout(() => props.setBackgroundColor(defaultBgColor), flashTime);
+      setTimeout(
+        () => props.setBackgroundColor(props.defaultBgColor),
+        flashTime
+      );
     } else if (
       currentTrial === "warmUp-3" &&
       colorValueRef.current !== response
     ) {
       props.setBackgroundColor(errorFlashColor);
+      errorsRef.current += 1;
 
-      setTimeout(() => props.setBackgroundColor(defaultBgColor), flashTime);
+      setTimeout(
+        () => props.setBackgroundColor(props.defaultBgColor),
+        flashTime
+      );
     }
   };
 
@@ -172,8 +195,9 @@ const StroopTest = (props: Props) => {
   };
 
   // Flash when incorrect response during warm up
+  // Also temp store of errors for trial results
   useEffect(() => {
-    handleWarmupErrors(response);
+    handleErrors(response);
   }, [hasResponded]);
 
   useEffect(() => {
@@ -193,6 +217,7 @@ const StroopTest = (props: Props) => {
     if (hasStarted && currentColorName === "" && !hasResponded) {
       handleResponse("");
       setHasResponded(true);
+      errorsRef.current += 1;
     }
   }, [currentColorName, hasResponded]);
 
@@ -467,11 +492,14 @@ const StroopTest = (props: Props) => {
       )}
       {/* End text */}
       {loadComponent === "end" && (
-        <AnimatedInstructions
-          load={""}
-          setLoadComponent={setLoadComponent}
-          instructions={i.endInstruction}
-        />
+        <div>
+          <ShowResults resultsRef={resultsRef} errorsRef={errorsRef} />
+          <AnimatedInstructions
+            load={""}
+            setLoadComponent={setLoadComponent}
+            instructions={i.endInstruction}
+          />
+        </div>
       )}
     </div>
   );
