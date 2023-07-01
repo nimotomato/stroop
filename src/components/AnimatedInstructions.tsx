@@ -12,68 +12,55 @@ const AnimatedInstructions = ({
   setLoadComponent,
   load,
 }: Props) => {
-  const instructionLength = 1000 * 5;
-
-  const animationDuration = 300;
-
-  const tickLength = 35;
+  const tickLength = 25;
 
   const [displayInstruction, setDisplayInstruction] = useState("");
 
   const [currentInstruction, setCurrentInstruction] = useState("");
 
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const [nextIndex, setNextIndex] = useState(1);
+
   const [instructionStarted, setInstructionStarted] = useState(true);
 
-  const [animation, setAnimation] = useState(
-    `transition-opacity opacity-0 duration-${animationDuration}`
-  );
+  const [stopInstructions, setStopInstructions] = useState(false);
 
-  const timers: NodeJS.Timeout[] = [];
-
-  const animateInstructions = (instructions: string[]) => {
-    for (let i = 0; i < instructions.length; i++) {
-      timers.push(
-        setTimeout(
-          () => setCurrentInstruction(instructions[i]!),
-          instructionLength * i
-        )
-      );
+  const handleOnClick = () => {
+    if (instructions[nextIndex] === "EOI") {
+      setLoadComponent(load);
+      setStopInstructions(true);
     }
-  };
 
-  const clearTimers = () => {
-    if (timers.length === 0) return;
+    setCurrentIndex((index) => {
+      const updatedIndex = index + 1;
 
-    timers.map((timer) => {
-      clearTimeout(timer);
+      if (typeof instructions[updatedIndex] !== "string") {
+        return index;
+      }
+
+      setCurrentInstruction(instructions[updatedIndex] as string);
+
+      return updatedIndex;
     });
   };
 
-  // Fades in and out the text
   useEffect(() => {
-    setAnimation(
-      `transition-opacity opacity-100 duration-${animationDuration}`
-    );
+    if (stopInstructions) return;
+  }, [stopInstructions]);
 
-    const timeOutId = setTimeout(
-      () =>
-        setAnimation(
-          `transition-opacity opacity-0 duration-${animationDuration}`
-        ),
-      instructionLength - animationDuration * 2
-    );
+  useEffect(() => {
+    let index = currentIndex;
+    setNextIndex((index += 1));
+  }, [currentIndex]);
 
-    return () => clearTimeout(timeOutId);
-  }, [currentInstruction]);
-
-  // Clears all timers when instructions are false
+  // Set first instruction
   useEffect(() => {
     if (!instructionStarted) {
-      clearTimers();
       return;
     }
 
-    animateInstructions(instructions);
+    if (instructions[0]) setCurrentInstruction(instructions[0]);
 
     return () => {
       setInstructionStarted(false);
@@ -82,11 +69,11 @@ const AnimatedInstructions = ({
 
   // Typewriter effect
   useEffect(() => {
+    if (currentInstruction === "") return;
+
     let currentCharIndex = 0;
     const currentWord = currentInstruction;
     let typedWord = "";
-
-    if (currentCharIndex === currentInstruction.length) return;
 
     const tickId = setInterval(() => {
       typedWord = currentWord.slice(0, currentCharIndex);
@@ -100,27 +87,29 @@ const AnimatedInstructions = ({
     };
   }, [currentInstruction]);
 
-  // Watch for EOF
-  useEffect(() => {
-    if (currentInstruction === "EOI") {
-      setLoadComponent(load);
-      clearTimers();
-    }
-  }, [currentInstruction]);
-
-  if (currentInstruction === "EOI") {
-    clearTimers();
-    return null;
-  }
-
   if (!instructions || instructions.length === 0) {
     return null;
   }
 
   return (
-    <div className="flex h-full flex-col items-center justify-center text-center">
-      <div className={`${animation} h-2 w-48 text-left`}>
-        {displayInstruction}
+    <div
+      style={{ height: "96vh" }}
+      className="flex flex-col items-center justify-center text-center"
+    >
+      <div
+        className={`flex h-full w-48 flex-col items-center justify-center text-left`}
+      >
+        <div className="h-1/6">{displayInstruction}</div>
+        <div className="flex w-full justify-end">
+          <button
+            className="btn mt-8 w-fit p-1 text-sm "
+            onClick={handleOnClick}
+          >
+            next<span className="text-green-600">.</span>
+            <span className="text-yellow-300">.</span>
+            <span className="text-red-600">.</span>
+          </button>
+        </div>
       </div>
     </div>
   );
