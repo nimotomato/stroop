@@ -94,12 +94,12 @@ const AnimatedInstructions = ({
   return (
     <div className="disable-select flex flex-col items-center justify-center text-center ">
       <div
-        className={`w-54 flex h-full flex-col items-center justify-center text-left`}
+        className={`flex h-56 w-52 flex-col items-center justify-center text-left`}
       >
-        <div className="h-1/6">{displayInstruction}</div>
-        <div className="flex w-full justify-end">
+        <div className="h-3/4">{displayInstruction}</div>
+        <div className="flex h-fit w-full justify-end">
           <button
-            className="btn mt-8 w-fit pl-2 pr-2 text-sm"
+            className="btn mt-8 pl-2 pr-2 text-sm"
             onClick={handleOnClick}
           >
             next<span className="text-green-600">.</span>

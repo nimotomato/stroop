@@ -63,7 +63,7 @@ const StroopTest = (props: Props) => {
 
   const colorValueRef = useRef("");
 
-  const [loadComponent, setLoadComponent] = useState("testButton-3");
+  const [loadComponent, setLoadComponent] = useState("start");
 
   const [response, setResponse] = useState("");
 
