@@ -1,18 +1,5 @@
-import { Result } from "postcss";
 import { useEffect, useState } from "react";
 import type { MutableRefObject } from "react";
-
-type ResultSumItem = {
-  trial: string;
-  results: [
-    {
-      colorName: string;
-      colorValue: string;
-      response: string;
-      responseTime: number;
-    }
-  ];
-};
 
 interface Props {
   resultsRef: MutableRefObject<
