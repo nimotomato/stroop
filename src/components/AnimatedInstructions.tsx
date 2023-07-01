@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 interface Props {
@@ -20,14 +20,14 @@ const AnimatedInstructions = ({
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [nextIndex, setNextIndex] = useState(1);
+  const nextIndexRef = useRef(1);
 
   const [instructionStarted, setInstructionStarted] = useState(true);
 
   const [stopInstructions, setStopInstructions] = useState(false);
 
   const handleOnClick = () => {
-    if (instructions[nextIndex] === "EOI") {
+    if (instructions[nextIndexRef.current] === "EOI") {
       setLoadComponent(load);
       setStopInstructions(true);
     }
@@ -46,12 +46,41 @@ const AnimatedInstructions = ({
   };
 
   useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      if (!(e.code === "Space" || e.code === "Enter")) return;
+
+      if (instructions[nextIndexRef.current] === "EOI") {
+        setLoadComponent(load);
+        setStopInstructions(true);
+      }
+
+      setCurrentIndex((index) => {
+        const updatedIndex = index + 1;
+
+        if (typeof instructions[updatedIndex] !== "string") {
+          return index;
+        }
+
+        setCurrentInstruction(instructions[updatedIndex] as string);
+
+        return updatedIndex;
+      });
+    };
+
+    document.addEventListener("keypress", handleKeyPress);
+
+    return () => {
+      document.removeEventListener("keypress", handleKeyPress);
+    };
+  }, [currentInstruction]);
+
+  useEffect(() => {
     if (stopInstructions) return;
   }, [stopInstructions]);
 
   useEffect(() => {
     let index = currentIndex;
-    setNextIndex((index += 1));
+    nextIndexRef.current = index + 1;
   }, [currentIndex]);
 
   // Set first instruction
