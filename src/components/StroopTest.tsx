@@ -49,6 +49,12 @@ const StroopTest = (props: Props) => {
 
   const warmUpDuration = intervalLength + 1000 * 10;
 
+  const errorFlashColor = "bg-red-500";
+
+  const defaultBgColor = "bg-slate-800";
+
+  const flashTime = 75;
+
   const [currentColorName, setCurrentColorName] = useState("");
 
   const [currentColorValue, setCurrentColorValue] = useState("");
@@ -57,7 +63,9 @@ const StroopTest = (props: Props) => {
 
   const colorValueRef = useRef("");
 
-  const [loadComponent, setLoadComponent] = useState("start");
+  const [loadComponent, setLoadComponent] = useState("warmUpButton-1");
+
+  const [response, setResponse] = useState("");
 
   const getRandomInt = (max: number): number => {
     return Math.floor(Math.random() * max);
@@ -81,8 +89,33 @@ const StroopTest = (props: Props) => {
     setHasStarted(false);
   };
 
+  const handleWarmupErrors = (response: string) => {
+    if (!hasStarted || !hasResponded || response === "") return;
+
+    const currentTrial = loadComponent;
+
+    // Warm up 1 and 2 are checked by the same algo
+    if (
+      (currentTrial === "warmUp-1" || currentTrial === "warmUp-2") &&
+      colorNameRef.current !== response
+    ) {
+      props.setBackgroundColor("bg-rose-700");
+
+      setTimeout(() => props.setBackgroundColor(defaultBgColor), flashTime);
+    } else if (
+      currentTrial === "warmUp-3" &&
+      colorValueRef.current !== response
+    ) {
+      props.setBackgroundColor(errorFlashColor);
+
+      setTimeout(() => props.setBackgroundColor(defaultBgColor), flashTime);
+    }
+  };
+
   const handleResponse = (response: string) => {
     responseTimeRef.current = performance.now() - startTimeRef.current;
+
+    setResponse(response);
 
     if (!resultsRef.current.has(loadComponent)) {
       resultsRef.current.set(loadComponent, [
@@ -137,6 +170,11 @@ const StroopTest = (props: Props) => {
 
     return true;
   };
+
+  // Flash when incorrect response during warm up
+  useEffect(() => {
+    handleWarmupErrors(response);
+  }, [hasResponded]);
 
   useEffect(() => {
     // Sends results to DB
