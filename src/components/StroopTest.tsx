@@ -47,9 +47,9 @@ const StroopTest = (props: Props) => {
   const intervalLength = 1000 * 1;
 
   // This needs an extra intervalLength to not shut down repsonses too early.
-  const activeTestDuration = intervalLength + 1000 * 10;
+  const activeTestDuration = intervalLength + 1000 * 60;
 
-  const warmUpDuration = intervalLength + 1000 * 10;
+  const warmUpDuration = intervalLength + 1000 * 12;
 
   const errorFlashColor = "bg-red-500";
 
