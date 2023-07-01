@@ -105,7 +105,9 @@ const AnimatedInstructions = ({
             className="btn mt-8 w-fit p-1 text-sm "
             onClick={handleOnClick}
           >
-            next...
+            next<span className="text-green-600">.</span>
+            <span className="text-yellow-300">.</span>
+            <span className="text-red-600">.</span>
           </button>
         </div>
       </div>
