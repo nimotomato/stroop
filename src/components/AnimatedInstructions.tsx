@@ -46,7 +46,7 @@ const AnimatedInstructions = ({
   };
 
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (!(e.code === "Space" || e.code === "Enter")) return;
 
       if (instructions[nextIndexRef.current] === "EOI") {
@@ -67,10 +67,10 @@ const AnimatedInstructions = ({
       });
     };
 
-    document.addEventListener("keypress", handleKeyPress);
+    document.addEventListener("keypress", handleKeyDown);
 
     return () => {
-      document.removeEventListener("keypress", handleKeyPress);
+      document.removeEventListener("keypress", handleKeyDown);
     };
   }, [currentInstruction]);
 

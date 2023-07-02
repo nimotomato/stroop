@@ -44,7 +44,7 @@ const Stroop: NextPage = () => {
           <SignedIn>
             {userEmail && (
               <StroopTest
-                defaultBgColor="defaultBgColor"
+                defaultBgColor={backgroundColor}
                 userEmail={userEmail}
                 setBackgroundColor={setBackgroundColor}
                 setTestHasFinished={setTestHasFinished}

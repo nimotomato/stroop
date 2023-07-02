@@ -109,13 +109,12 @@ const StroopTest = (props: Props) => {
       errorsRef.current += 1;
     }
 
-    // Warmup also makes screen go red
+    // Warmup makes screen go red but doesn't log error
     if (
       (currentTrial === "warmUp-1" || currentTrial === "warmUp-2") &&
       colorNameRef.current !== response
     ) {
       props.setBackgroundColor("bg-rose-700");
-      errorsRef.current += 1;
 
       setTimeout(
         () => props.setBackgroundColor(props.defaultBgColor),
@@ -126,7 +125,6 @@ const StroopTest = (props: Props) => {
       colorValueRef.current !== response
     ) {
       props.setBackgroundColor(errorFlashColor);
-      errorsRef.current += 1;
 
       setTimeout(
         () => props.setBackgroundColor(props.defaultBgColor),
