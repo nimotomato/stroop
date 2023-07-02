@@ -35,7 +35,6 @@ const Home: NextPage = () => {
         >
           <SignedIn>
             <div className="m-4 flex flex-col items-end justify-end">
-              <button className="btn mb-2 p-1 text-sm">Check results </button>
               <div className="btn p-1 text-sm">
                 <SignOutButton />
               </div>
