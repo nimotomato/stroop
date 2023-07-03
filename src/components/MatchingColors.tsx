@@ -1,44 +1,25 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import type { Dispatch, SetStateAction, MutableRefObject } from "react";
 
 import RenderTrial from "./RenderTrial";
-
-type getRandomInt = (max: number) => number;
-type clearColors = () => void;
-type stopTest = (testId: NodeJS.Timer | undefined) => void;
-type handleResponseFunction = (arg1: string) => void;
+import { StroopContext } from "./StroopContext";
 
 interface Props {
-  stopTest: stopTest;
-  getRandomInt: getRandomInt;
-  colorNameRef: MutableRefObject<string>;
-  colorValueRef: MutableRefObject<string>;
-  resultsRef: MutableRefObject<Map<any, any>>;
-  setCurrentColorName: Dispatch<SetStateAction<string>>;
-  setCurrentColorValue: Dispatch<SetStateAction<string>>;
-  hasStarted: boolean;
-  colors: string[];
-  intervalLength: number;
-  activeTestDuration: number;
-  clearColors: clearColors;
-  setHasResponded: Dispatch<SetStateAction<boolean>>;
-  hasResponded: boolean;
-  handleResponse: handleResponseFunction;
-  currentColorValue: string;
-  currentColorName: string;
   load: string;
-  setLoadComponent: Dispatch<SetStateAction<string>>;
+  activeTestDuration: number;
 }
 
 const MatchingColors = (props: Props) => {
+  const ctx = useContext(StroopContext)!;
+
   // Sets the colorname and colorvalue to match
   const setMatchingColors = (colors: string[]) => {
-    const randomIndex = props.getRandomInt(colors.length);
+    const randomIndex = ctx.getRandomInt(colors.length);
 
-    props.colorNameRef.current = colors[randomIndex]!;
-    props.colorValueRef.current = colors[randomIndex]!;
+    ctx.colorNameRef.current = colors[randomIndex]!;
+    ctx.colorValueRef.current = colors[randomIndex]!;
 
-    props.setCurrentColorName((currentColor) => {
+    ctx.setCurrentColorName((currentColor) => {
       if (currentColor !== "") {
         return "";
       } else {
@@ -46,7 +27,7 @@ const MatchingColors = (props: Props) => {
       }
     });
 
-    props.setCurrentColorValue((currentColor) => {
+    ctx.setCurrentColorValue((currentColor) => {
       if (currentColor !== "") {
         return "";
       } else {
@@ -56,13 +37,13 @@ const MatchingColors = (props: Props) => {
   };
 
   const runMatchingCondition = (): NodeJS.Timer | undefined => {
-    if (props.hasStarted) {
+    if (ctx.hasStarted) {
       return setInterval(
-        () => setMatchingColors(props.colors),
-        props.intervalLength
+        () => setMatchingColors(ctx.colors),
+        ctx.intervalLength
       );
     } else {
-      props.clearColors();
+      ctx.clearColors();
     }
     return undefined;
   };
@@ -71,24 +52,24 @@ const MatchingColors = (props: Props) => {
     const runId = runMatchingCondition();
 
     const testRunId = setTimeout(() => {
-      props.setLoadComponent(props.load);
+      ctx.setLoadComponent(props.load);
 
-      props.stopTest(runId);
+      ctx.stopTest(runId);
     }, props.activeTestDuration);
 
     return () => {
       clearInterval(runId);
       clearTimeout(testRunId);
     };
-  }, [props.hasStarted]);
+  }, [ctx.hasStarted]);
 
   return (
     <RenderTrial
-      hasResponded={props.hasResponded}
-      handleResponse={props.handleResponse}
-      currentColorName={props.currentColorName}
-      currentColorValue={props.currentColorValue}
-      setHasResponded={props.setHasResponded}
+      hasResponded={ctx.hasResponded}
+      handleResponse={ctx.handleResponse}
+      currentColorName={ctx.currentColorName}
+      currentColorValue={ctx.currentColorValue}
+      setHasResponded={ctx.setHasResponded}
     />
   );
 };

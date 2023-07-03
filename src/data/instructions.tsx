@@ -12,9 +12,6 @@ export const i = {
     "In the second trial, your job is to respond with the correct text color, and ignore the name of the color. ",
     "In the third and final trial, your job is to respond with the name of the color, and ignore the text color. ",
     "Don't worry if it seems confusing, you will have the chance to practice each trial for a short while before it starts. ",
-    "EOI",
-  ],
-  keyboardInstructions: [
     "You respond using your keyboard. ",
     "Press 'G' to answer 'Green', 'R' for 'Red', 'B' for 'Blue' and 'Y' for Yellow. ",
     "Press the correct response as soon as possible. Speed is the key here! ",
