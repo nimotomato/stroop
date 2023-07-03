@@ -44,110 +44,96 @@ const StroopTest = (props: Props) => {
 
   const errorsRef = useRef(0);
 
-  const handleErrors = (response: string) => {
-    if (!ctx.hasStarted || !ctx.hasResponded || response === "") return;
-
-    const currentTrial = ctx.loadComponent;
-
-    // These just add to local error counter
-    if (
-      (currentTrial === "test-1" || currentTrial === "test-2") &&
-      ctx.colorNameRef.current !== response
-    ) {
-      errorsRef.current += 1;
-    } else if (
-      currentTrial === "test-3" &&
-      ctx.colorValueRef.current !== response
-    ) {
-      errorsRef.current += 1;
-    }
-
-    // Warmup makes screen go red but doesn't log error
-    if (
-      (currentTrial === "warmUp-1" || currentTrial === "warmUp-2") &&
-      ctx.colorNameRef.current !== response
-    ) {
-      props.setBackgroundColor(errorFlashColor);
-
-      setTimeout(
-        () => props.setBackgroundColor(props.defaultBgColor),
-        flashTime
-      );
-    } else if (
-      currentTrial === "warmUp-3" &&
-      ctx.colorValueRef.current !== response
-    ) {
-      props.setBackgroundColor(errorFlashColor);
-
-      setTimeout(
-        () => props.setBackgroundColor(props.defaultBgColor),
-        flashTime
-      );
-    }
-  };
-
-  const resetResults = () => {
-    ctx.resultsRef.current.clear(); // Reset data
-
-    return true;
-  };
-
   // Sends test data to database
   const sendData = api.test.sendData.useMutation();
-
-  const sendResultsToDb = () => {
-    if (
-      !ctx.resultsRef.current ||
-      ctx.resultsRef.current.size === 0 ||
-      props.userEmail === ""
-    )
-      return;
-
-    const results: ResultSumItem[] = [];
-
-    ctx.resultsRef.current.forEach(
-      (
-        value: [
-          {
-            colorName: string;
-            colorValue: string;
-            response: string;
-            responseTime: number;
-          }
-        ],
-        key: string
-      ) => {
-        const myObj: ResultSumItem = { trial: key, results: value };
-
-        results.push(myObj);
-      }
-    );
-
-    console.log(results);
-
-    sendData.mutate({
-      testScore: results,
-      testTaker: props.userEmail,
-    });
-
-    return true;
-  };
 
   // Flash when incorrect response during warm up
   // Also temp store of errors for trial results
   useEffect(() => {
+    const handleErrors = (response: string) => {
+      if (!ctx.hasStarted || !ctx.hasResponded || response === "") return;
+
+      const currentTrial = ctx.loadComponent;
+
+      // These just add to local error counter
+      if (
+        (currentTrial === "test-1" || currentTrial === "test-2") &&
+        ctx.colorNameRef.current !== response
+      ) {
+        errorsRef.current += 1;
+      } else if (
+        currentTrial === "test-3" &&
+        ctx.colorValueRef.current !== response
+      ) {
+        errorsRef.current += 1;
+      }
+
+      // Warmup makes screen go red but doesn't log error
+      if (
+        (currentTrial === "warmUp-1" || currentTrial === "warmUp-2") &&
+        ctx.colorNameRef.current !== response
+      ) {
+        props.setBackgroundColor(errorFlashColor);
+
+        setTimeout(
+          () => props.setBackgroundColor(props.defaultBgColor),
+          flashTime
+        );
+      } else if (
+        currentTrial === "warmUp-3" &&
+        ctx.colorValueRef.current !== response
+      ) {
+        props.setBackgroundColor(errorFlashColor);
+
+        setTimeout(
+          () => props.setBackgroundColor(props.defaultBgColor),
+          flashTime
+        );
+      }
+    };
+
     handleErrors(ctx.response);
   }, [ctx.hasResponded]);
 
   useEffect(() => {
     // Sends results to DB
     if (ctx.loadComponent === "end") {
-      sendResultsToDb();
+      if (
+        !ctx.resultsRef.current ||
+        ctx.resultsRef.current.size === 0 ||
+        props.userEmail === ""
+      )
+        return;
+
+      const results: ResultSumItem[] = [];
+
+      ctx.resultsRef.current.forEach(
+        (
+          value: [
+            {
+              colorName: string;
+              colorValue: string;
+              response: string;
+              responseTime: number;
+            }
+          ],
+          key: string
+        ) => {
+          const myObj: ResultSumItem = { trial: key, results: value };
+
+          results.push(myObj);
+        }
+      );
+
+      sendData.mutate({
+        testScore: results,
+        testTaker: props.userEmail,
+      });
     }
 
     // Clears results
     if (ctx.loadComponent === "start") {
-      resetResults();
+      ctx.resultsRef.current.clear();
     }
   }, [ctx.loadComponent]);
 

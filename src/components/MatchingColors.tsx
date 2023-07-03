@@ -1,5 +1,4 @@
 import { useEffect, useContext } from "react";
-import type { Dispatch, SetStateAction, MutableRefObject } from "react";
 
 import RenderTrial from "./RenderTrial";
 import { StroopContext } from "./StroopContext";
