@@ -105,11 +105,23 @@ const StroopTest = (props: Props) => {
 
     const results: ResultSumItem[] = [];
 
-    ctx.resultsRef.current.forEach((value, key) => {
-      const myObj: ResultSumItem = { trial: key, results: value };
+    ctx.resultsRef.current.forEach(
+      (
+        value: [
+          {
+            colorName: string;
+            colorValue: string;
+            response: string;
+            responseTime: number;
+          }
+        ],
+        key: string
+      ) => {
+        const myObj: ResultSumItem = { trial: key, results: value };
 
-      results.push(myObj);
-    });
+        results.push(myObj);
+      }
+    );
 
     console.log(results);
 
