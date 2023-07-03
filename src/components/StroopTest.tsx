@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
 import MatchingColors from "./MatchingColors";
@@ -6,6 +6,7 @@ import MisMatchingColors from "./MisMatchingColors";
 import AnimatedInstructions from "src/components/AnimatedInstructions";
 import StartButton from "./StartButton";
 import ShowResults from "./ShowResults";
+import { StroopContext } from "./StroopContext";
 
 import { api } from "src/utils/api";
 import { i } from "src/data/instructions";
@@ -30,81 +31,33 @@ interface Props {
 }
 
 const StroopTest = (props: Props) => {
-  // Map containing colors and corresponding RGB values
-  const colors = ["red", "yellow", "green", "blue"];
-
-  const [hasStarted, setHasStarted] = useState(false);
-
-  const resultsRef = useRef(new Map<string, ResultSumItem["results"]>());
-
-  const startTimeRef = useRef(0);
-
-  const responseTimeRef = useRef(0);
-
-  const [hasResponded, setHasResponded] = useState(false); // This is used to restrict test taker to only respond once.
-
-  // Contols how quickly the colors switch. Measured in ms.
-  const intervalLength = 1500 * 1;
+  const ctx = useContext(StroopContext)!;
 
   // This needs an extra intervalLength to not shut down responses too early.
-  const activeTestDuration = intervalLength + 1500 * 60;
+  const activeTestDuration = ctx.intervalLength + 1500 * 60;
 
-  const warmUpDuration = intervalLength + 1500 * 12;
+  const warmUpDuration = ctx.intervalLength + 1500 * 12;
 
   const errorFlashColor = "bg-red-500";
 
   const flashTime = 75;
 
-  const [currentColorName, setCurrentColorName] = useState("");
-
-  const [currentColorValue, setCurrentColorValue] = useState("");
-
-  const colorNameRef = useRef("");
-
-  const colorValueRef = useRef("");
-
-  const [loadComponent, setLoadComponent] = useState("start");
-
-  const [response, setResponse] = useState("");
-
   const errorsRef = useRef(0);
 
-  const getRandomInt = (max: number): number => {
-    return Math.floor(Math.random() * max);
-  };
-
-  const clearColors = () => {
-    setCurrentColorName(() => {
-      return "";
-    });
-
-    setCurrentColorValue(() => {
-      return "";
-    });
-  };
-
-  const stopTest = (testId: NodeJS.Timer | undefined) => {
-    clearColors();
-
-    clearInterval(testId);
-
-    setHasStarted(false);
-  };
-
   const handleErrors = (response: string) => {
-    if (!hasStarted || !hasResponded || response === "") return;
+    if (!ctx.hasStarted || !ctx.hasResponded || response === "") return;
 
-    const currentTrial = loadComponent;
+    const currentTrial = ctx.loadComponent;
 
     // These just add to local error counter
     if (
       (currentTrial === "test-1" || currentTrial === "test-2") &&
-      colorNameRef.current !== response
+      ctx.colorNameRef.current !== response
     ) {
       errorsRef.current += 1;
     } else if (
       currentTrial === "test-3" &&
-      colorValueRef.current !== response
+      ctx.colorValueRef.current !== response
     ) {
       errorsRef.current += 1;
     }
@@ -112,9 +65,9 @@ const StroopTest = (props: Props) => {
     // Warmup makes screen go red but doesn't log error
     if (
       (currentTrial === "warmUp-1" || currentTrial === "warmUp-2") &&
-      colorNameRef.current !== response
+      ctx.colorNameRef.current !== response
     ) {
-      props.setBackgroundColor("bg-rose-700");
+      props.setBackgroundColor(errorFlashColor);
 
       setTimeout(
         () => props.setBackgroundColor(props.defaultBgColor),
@@ -122,7 +75,7 @@ const StroopTest = (props: Props) => {
       );
     } else if (
       currentTrial === "warmUp-3" &&
-      colorValueRef.current !== response
+      ctx.colorValueRef.current !== response
     ) {
       props.setBackgroundColor(errorFlashColor);
 
@@ -133,32 +86,8 @@ const StroopTest = (props: Props) => {
     }
   };
 
-  const handleResponse = (response: string) => {
-    responseTimeRef.current = performance.now() - startTimeRef.current;
-
-    setResponse(response);
-
-    if (!resultsRef.current.has(loadComponent)) {
-      resultsRef.current.set(loadComponent, [
-        {
-          colorName: colorNameRef.current,
-          colorValue: colorValueRef.current,
-          response: response,
-          responseTime: responseTimeRef.current,
-        },
-      ]);
-    } else {
-      resultsRef.current.get(loadComponent)?.push({
-        colorName: colorNameRef.current,
-        colorValue: colorValueRef.current,
-        response: response,
-        responseTime: responseTimeRef.current,
-      });
-    }
-  };
-
   const resetResults = () => {
-    resultsRef.current.clear(); // Reset data
+    ctx.resultsRef.current.clear(); // Reset data
 
     return true;
   };
@@ -168,15 +97,15 @@ const StroopTest = (props: Props) => {
 
   const sendResultsToDb = () => {
     if (
-      !resultsRef.current ||
-      resultsRef.current.size === 0 ||
+      !ctx.resultsRef.current ||
+      ctx.resultsRef.current.size === 0 ||
       props.userEmail === ""
     )
       return;
 
     const results: ResultSumItem[] = [];
 
-    resultsRef.current.forEach((value, key) => {
+    ctx.resultsRef.current.forEach((value, key) => {
       const myObj: ResultSumItem = { trial: key, results: value };
 
       results.push(myObj);
@@ -195,39 +124,39 @@ const StroopTest = (props: Props) => {
   // Flash when incorrect response during warm up
   // Also temp store of errors for trial results
   useEffect(() => {
-    handleErrors(response);
-  }, [hasResponded]);
+    handleErrors(ctx.response);
+  }, [ctx.hasResponded]);
 
   useEffect(() => {
     // Sends results to DB
-    if (loadComponent === "end") {
+    if (ctx.loadComponent === "end") {
       sendResultsToDb();
     }
 
     // Clears results
-    if (loadComponent === "start") {
+    if (ctx.loadComponent === "start") {
       resetResults();
     }
-  }, [loadComponent]);
+  }, [ctx.loadComponent]);
 
   // Makes sure missed stimuli are logged.
   useEffect(() => {
-    if (hasStarted && currentColorName === "" && !hasResponded) {
-      handleResponse("");
-      setHasResponded(true);
+    if (ctx.hasStarted && ctx.currentColorName === "" && !ctx.hasResponded) {
+      ctx.handleResponse("");
+      ctx.setHasResponded(true);
       errorsRef.current += 1;
     }
-  }, [currentColorName, hasResponded]);
+  }, [ctx.currentColorName, ctx.hasResponded]);
 
   // Start response timer
   useEffect(() => {
-    if (currentColorName !== "") {
-      setHasResponded(false); // Reset response gate
-      startTimeRef.current = performance.now();
+    if (ctx.currentColorName !== "") {
+      ctx.setHasResponded(false); // Reset response gate
+      ctx.startTimeRef.current = performance.now();
     }
-  }, [currentColorName]);
+  }, [ctx.currentColorName]);
 
-  if (loadComponent === "") {
+  if (ctx.loadComponent === "") {
     props.setTestHasFinished(true);
     return null;
   }
@@ -235,268 +164,148 @@ const StroopTest = (props: Props) => {
   return (
     <div className="flex h-screen flex-col items-center justify-center text-slate-200">
       {/* On load, display initial instructions in the center of the screen. */}
-      {loadComponent === "start" && (
+      {ctx.loadComponent === "start" && (
         <AnimatedInstructions
-          load={"keyboardInstructions"}
-          setLoadComponent={setLoadComponent}
           instructions={i.initialInstructions}
-        />
-      )}
-      {/* Show instructions on how to use keyboard */}
-      {loadComponent === "keyboardInstructions" && (
-        <AnimatedInstructions
           load={"warmUpButton-1"}
-          setLoadComponent={setLoadComponent}
-          instructions={i.keyboardInstructions}
         />
       )}
-      {/* Allow user to start the warm up */}
-      {loadComponent === "warmUpButton-1" && (
+      {/* Start button for warm up */}
+      {ctx.loadComponent === "warmUpButton-1" && (
         <StartButton
-          setLoadComponent={setLoadComponent}
+          setLoadComponent={ctx.setLoadComponent}
           load={"warmUp-1"}
-          startWhat="matching color warm up."
-          setHasStarted={setHasStarted}
+          startWhat="matching color warm up"
+          setHasStarted={ctx.setHasStarted}
         />
       )}
       {/* Start warm up */}
-      {loadComponent === "warmUp-1" && (
+      {ctx.loadComponent === "warmUp-1" && (
         <MatchingColors
-          stopTest={stopTest}
-          getRandomInt={getRandomInt}
-          colorNameRef={colorNameRef}
-          colorValueRef={colorValueRef}
-          resultsRef={resultsRef}
-          setCurrentColorName={setCurrentColorName}
-          setCurrentColorValue={setCurrentColorValue}
-          hasStarted={hasStarted}
-          colors={colors}
-          intervalLength={intervalLength}
           activeTestDuration={warmUpDuration}
-          clearColors={clearColors}
-          setHasResponded={setHasResponded}
-          hasResponded={hasResponded}
-          handleResponse={handleResponse}
-          currentColorValue={currentColorValue}
-          currentColorName={currentColorName}
-          setLoadComponent={setLoadComponent}
           load={"testInstructions-1"}
         />
       )}
       {/* Instructions for the first test */}
-      {loadComponent === "testInstructions-1" && (
+      {ctx.loadComponent === "testInstructions-1" && (
         <AnimatedInstructions
           load={"testButton-1"}
-          setLoadComponent={setLoadComponent}
           instructions={i.matchingTestInstructions}
         />
       )}
       {/* Start button for first test */}
-      {loadComponent === "testButton-1" && (
+      {ctx.loadComponent === "testButton-1" && (
         <StartButton
-          setLoadComponent={setLoadComponent}
+          setLoadComponent={ctx.setLoadComponent}
           load={"test-1"}
-          startWhat="matching color test."
-          setHasStarted={setHasStarted}
+          startWhat="matching color test"
+          setHasStarted={ctx.setHasStarted}
         />
       )}
       {/* First test */}
-      {loadComponent === "test-1" && (
+      {ctx.loadComponent === "test-1" && (
         <MatchingColors
-          stopTest={stopTest}
-          getRandomInt={getRandomInt}
-          colorNameRef={colorNameRef}
-          colorValueRef={colorValueRef}
-          resultsRef={resultsRef}
-          setCurrentColorName={setCurrentColorName}
-          setCurrentColorValue={setCurrentColorValue}
-          hasStarted={hasStarted}
-          colors={colors}
-          intervalLength={intervalLength}
           activeTestDuration={activeTestDuration}
-          clearColors={clearColors}
-          setHasResponded={setHasResponded}
-          hasResponded={hasResponded}
-          handleResponse={handleResponse}
-          currentColorValue={currentColorValue}
-          currentColorName={currentColorName}
-          setLoadComponent={setLoadComponent}
           load={"warmUpInstruction-2"}
         />
       )}
       {/* Second test instructions */}
-      {loadComponent === "warmUpInstruction-2" && (
+      {ctx.loadComponent === "warmUpInstruction-2" && (
         <AnimatedInstructions
           load={"warmUpButton-2"}
-          setLoadComponent={setLoadComponent}
           instructions={i.mismatchColorTextInstruction}
         />
       )}
       {/* Start button for second warm up */}
-      {loadComponent === "warmUpButton-2" && (
+      {ctx.loadComponent === "warmUpButton-2" && (
         <StartButton
-          setLoadComponent={setLoadComponent}
+          setLoadComponent={ctx.setLoadComponent}
           load={"warmUp-2"}
-          startWhat="color text warm up."
-          setHasStarted={setHasStarted}
+          startWhat="color text warm up"
+          setHasStarted={ctx.setHasStarted}
         />
       )}
       {/* Second warm up */}
-      {loadComponent === "warmUp-2" && (
+      {ctx.loadComponent === "warmUp-2" && (
         <MisMatchingColors
-          stopTest={stopTest}
-          getRandomInt={getRandomInt}
-          colorNameRef={colorNameRef}
-          colorValueRef={colorValueRef}
-          resultsRef={resultsRef}
-          setCurrentColorName={setCurrentColorName}
-          setCurrentColorValue={setCurrentColorValue}
-          hasStarted={hasStarted}
-          colors={colors}
-          intervalLength={intervalLength}
           activeTestDuration={warmUpDuration}
-          clearColors={clearColors}
-          setHasResponded={setHasResponded}
-          hasResponded={hasResponded}
-          handleResponse={handleResponse}
-          currentColorValue={currentColorValue}
-          currentColorName={currentColorName}
-          setLoadComponent={setLoadComponent}
           load={"testInstructions-2"}
         />
       )}
       {/* Second test instructions repeat */}
-      {loadComponent === "testInstructions-2" && (
+      {ctx.loadComponent === "testInstructions-2" && (
         <AnimatedInstructions
           load={"testButton-2"}
-          setLoadComponent={setLoadComponent}
           instructions={i.mismatchColorTextInstructionRepeat}
         />
       )}
       {/* Second test start button */}
-      {loadComponent === "testButton-2" && (
+      {ctx.loadComponent === "testButton-2" && (
         <StartButton
-          setLoadComponent={setLoadComponent}
+          setLoadComponent={ctx.setLoadComponent}
           load={"test-2"}
-          startWhat="color text test."
-          setHasStarted={setHasStarted}
+          startWhat="color text test"
+          setHasStarted={ctx.setHasStarted}
         />
       )}
       {/* Second test */}
-      {loadComponent === "test-2" && (
+      {ctx.loadComponent === "test-2" && (
         <MisMatchingColors
-          stopTest={stopTest}
-          getRandomInt={getRandomInt}
-          colorNameRef={colorNameRef}
-          colorValueRef={colorValueRef}
-          resultsRef={resultsRef}
-          setCurrentColorName={setCurrentColorName}
-          setCurrentColorValue={setCurrentColorValue}
-          hasStarted={hasStarted}
-          colors={colors}
-          intervalLength={intervalLength}
           activeTestDuration={activeTestDuration}
-          clearColors={clearColors}
-          setHasResponded={setHasResponded}
-          hasResponded={hasResponded}
-          handleResponse={handleResponse}
-          currentColorValue={currentColorValue}
-          currentColorName={currentColorName}
-          setLoadComponent={setLoadComponent}
           load={"warmUpInstructions-3"}
         />
       )}
       {/* Third test instructions */}
-      {loadComponent === "warmUpInstructions-3" && (
+      {ctx.loadComponent === "warmUpInstructions-3" && (
         <AnimatedInstructions
           load={"warmUpButton-3"}
-          setLoadComponent={setLoadComponent}
           instructions={i.mismatchColorValueInstruction}
         />
       )}
       {/* Third warm up start button*/}
-      {loadComponent === "warmUpButton-3" && (
+      {ctx.loadComponent === "warmUpButton-3" && (
         <StartButton
-          setLoadComponent={setLoadComponent}
+          setLoadComponent={ctx.setLoadComponent}
           load={"warmUp-3"}
-          startWhat="font color warm up."
-          setHasStarted={setHasStarted}
+          startWhat="font color warm up"
+          setHasStarted={ctx.setHasStarted}
         />
       )}
       {/* Third warm up*/}
-      {loadComponent === "warmUp-3" && (
+      {ctx.loadComponent === "warmUp-3" && (
         <MisMatchingColors
-          stopTest={stopTest}
-          getRandomInt={getRandomInt}
-          colorNameRef={colorNameRef}
-          colorValueRef={colorValueRef}
-          resultsRef={resultsRef}
-          setCurrentColorName={setCurrentColorName}
-          setCurrentColorValue={setCurrentColorValue}
-          hasStarted={hasStarted}
-          colors={colors}
-          intervalLength={intervalLength}
           activeTestDuration={warmUpDuration}
-          clearColors={clearColors}
-          setHasResponded={setHasResponded}
-          hasResponded={hasResponded}
-          handleResponse={handleResponse}
-          currentColorValue={currentColorValue}
-          currentColorName={currentColorName}
-          setLoadComponent={setLoadComponent}
           load={"testInstructions-3"}
         />
       )}
       {/* Third test instruction repeat*/}
-      {loadComponent === "testInstructions-3" && (
+      {ctx.loadComponent === "testInstructions-3" && (
         <AnimatedInstructions
           load={"testButton-3"}
-          setLoadComponent={setLoadComponent}
           instructions={i.mismatchColorValueInstructionRepeat}
         />
       )}
       {/* Third test start button*/}
-      {loadComponent === "testButton-3" && (
+      {ctx.loadComponent === "testButton-3" && (
         <StartButton
-          setLoadComponent={setLoadComponent}
+          setLoadComponent={ctx.setLoadComponent}
           load={"test-3"}
-          startWhat="font color test."
-          setHasStarted={setHasStarted}
+          startWhat="font color test"
+          setHasStarted={ctx.setHasStarted}
         />
       )}
       {/* Third test*/}
-      {loadComponent === "test-3" && (
+      {ctx.loadComponent === "test-3" && (
         <MisMatchingColors
-          stopTest={stopTest}
-          getRandomInt={getRandomInt}
-          colorNameRef={colorNameRef}
-          colorValueRef={colorValueRef}
-          resultsRef={resultsRef}
-          setCurrentColorName={setCurrentColorName}
-          setCurrentColorValue={setCurrentColorValue}
-          hasStarted={hasStarted}
-          colors={colors}
-          intervalLength={intervalLength}
           activeTestDuration={activeTestDuration}
-          clearColors={clearColors}
-          setHasResponded={setHasResponded}
-          hasResponded={hasResponded}
-          handleResponse={handleResponse}
-          currentColorValue={currentColorValue}
-          currentColorName={currentColorName}
-          setLoadComponent={setLoadComponent}
           load={"end"}
         />
       )}
       {/* End text */}
-      {loadComponent === "end" && (
+      {ctx.loadComponent === "end" && (
         <div>
-          <ShowResults resultsRef={resultsRef} errorsRef={errorsRef} />
-          <AnimatedInstructions
-            load={""}
-            setLoadComponent={setLoadComponent}
-            instructions={i.endInstruction}
-          />
+          <ShowResults resultsRef={ctx.resultsRef} errorsRef={errorsRef} />
+          <AnimatedInstructions load={""} instructions={i.endInstruction} />
         </div>
       )}
     </div>

@@ -1,17 +1,14 @@
-import { useEffect, useState, useRef } from "react";
-import type { Dispatch, SetStateAction } from "react";
+import { useEffect, useState, useRef, useContext } from "react";
+import { StroopContext } from "./StroopContext";
 
 interface Props {
   instructions: string[];
-  setLoadComponent: Dispatch<SetStateAction<string>>;
   load: string;
 }
 
-const AnimatedInstructions = ({
-  instructions,
-  setLoadComponent,
-  load,
-}: Props) => {
+const AnimatedInstructions = ({ instructions, load }: Props) => {
+  const ctx = useContext(StroopContext)!;
+
   const tickLength = 25;
 
   const [displayInstruction, setDisplayInstruction] = useState("");
@@ -28,7 +25,7 @@ const AnimatedInstructions = ({
 
   const handleOnClick = () => {
     if (instructions[nextIndexRef.current] === "EOI") {
-      setLoadComponent(load);
+      ctx.setLoadComponent(load);
       setStopInstructions(true);
     }
 
@@ -50,7 +47,7 @@ const AnimatedInstructions = ({
       if (!(e.code === "Space" || e.code === "Enter")) return;
 
       if (instructions[nextIndexRef.current] === "EOI") {
-        setLoadComponent(load);
+        ctx.setLoadComponent(load);
         setStopInstructions(true);
       }
 

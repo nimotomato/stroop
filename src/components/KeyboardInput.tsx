@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
-type handleResponseFunction = (arg1: string) => void;
+import { StroopContext } from "./StroopContext";
+
+type handleResponseFunction = (response: string) => void;
 
 interface Props {
   setHasResponded: Dispatch<SetStateAction<boolean>>;
@@ -10,6 +12,8 @@ interface Props {
 }
 
 const KeyboardInput = (props: Props) => {
+  const ctx = useContext(StroopContext)!;
+
   const handleKeyDown = (event: KeyboardEvent) => {
     if (!props.hasResponded) {
       props.setHasResponded(() => true);

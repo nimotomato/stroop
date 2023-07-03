@@ -2,7 +2,7 @@ import type { Dispatch, SetStateAction } from "react";
 
 import KeyboardInput from "./KeyboardInput";
 
-type handleResponseFunction = (arg1: string) => void;
+type handleResponseFunction = (response: string) => void;
 
 interface Props {
   setHasResponded: Dispatch<SetStateAction<boolean>>;
