@@ -9,17 +9,14 @@ import { SignedIn, SignedOut, useUser } from "@clerk/nextjs";
 import StroopTest from "src/components/StroopTest";
 import { StroopContext } from "~/components/StroopContext";
 
-type ResultSumItem = {
-  trial: string;
-  results: [
-    {
-      colorName: string;
-      colorValue: string;
-      response: string;
-      responseTime: number;
-    }
-  ];
-};
+type ResultItem = [
+  {
+    colorName: string;
+    colorValue: string;
+    response: string;
+    responseTime: number;
+  }
+];
 
 const Stroop: NextPage = () => {
   const [backgroundColor, setBackgroundColor] = useState("bg-slate-800");
@@ -33,14 +30,14 @@ const Stroop: NextPage = () => {
   const colors = ["red", "yellow", "green", "blue"];
   const [hasStarted, setHasStarted] = useState(false);
   const [response, setResponse] = useState("");
-  const resultsRef = useRef(new Map<string, ResultSumItem["results"]>());
+  const resultsRef = useRef(new Map<string, ResultItem>()); // Break?
   const [hasResponded, setHasResponded] = useState(false); // This is used to restrict test taker to only respond once.
   const intervalLength = 1500 * 1; // Contols how quickly the colors switch. Measured in ms.
   const [currentColorName, setCurrentColorName] = useState("");
   const [currentColorValue, setCurrentColorValue] = useState("");
   const colorNameRef = useRef("");
   const colorValueRef = useRef("");
-  const [loadComponent, setLoadComponent] = useState("start");
+  const [loadComponent, setLoadComponent] = useState("warmUpButton-1");
   const startTimeRef = useRef(0);
   const responseTimeRef = useRef(0);
 
@@ -99,7 +96,7 @@ const Stroop: NextPage = () => {
         })
         .catch((e) => console.error(e));
     }
-  });
+  }, [testHasFinished]);
 
   return (
     <>

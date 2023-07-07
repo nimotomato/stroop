@@ -9,7 +9,7 @@ import ShowResults from "./ShowResults";
 import { StroopContext } from "./StroopContext";
 
 import { api } from "src/utils/api";
-import { i } from "src/data/instructions";
+import { i } from "~/data/stroopInstructions";
 
 type ResultSumItem = {
   trial: string;
@@ -154,6 +154,7 @@ const StroopTest = (props: Props) => {
     }
   }, [ctx.currentColorName]);
 
+  // End test
   if (ctx.loadComponent === "") {
     props.setTestHasFinished(true);
     return null;

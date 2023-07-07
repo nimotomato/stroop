@@ -39,7 +39,7 @@ export default function UserDetailsForm({ setIsRegistered }: Props) {
     }
   };
 
-  // Make sure now form data is missing
+  // Make sure no form data is missing
   const checkEmpty = (key: string, value: string | Date) => {
     if (value === "") {
       alert(`${key} is empty!`);
