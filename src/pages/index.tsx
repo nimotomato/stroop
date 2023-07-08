@@ -45,8 +45,8 @@ const Home: NextPage = () => {
             )}
             {isRegistered && (
               <div className="disable-select flex h-4/6 flex-col items-center justify-center">
-                <h2 className="m-4 ">Choose a test to take!</h2>
-                <div className="w-16">
+                <h2 className="m-4">Choose a test to take!</h2>
+                <div className="flex gap-4">
                   <button
                     className="btn"
                     onClick={() => {
@@ -65,6 +65,20 @@ const Home: NextPage = () => {
                     <span className="text-green-600">o</span>
                     <span className="text-yellow-300">o</span>
                     <span className="text-red-600">p</span>
+                  </button>
+                  <button
+                    className="btn"
+                    onClick={() => {
+                      router
+                        .push("/cpt")
+                        .then(() => {
+                          console.log();
+                        })
+                        .catch((e) => console.error(e));
+                      return;
+                    }}
+                  >
+                    CPT
                   </button>
                 </div>
               </div>

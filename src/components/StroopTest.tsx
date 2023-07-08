@@ -9,7 +9,7 @@ import ShowResults from "./ShowResults";
 import { StroopContext } from "./StroopContext";
 
 import { api } from "src/utils/api";
-import { i } from "src/data/instructions";
+import { i } from "src/data/stroopInstructions";
 
 type ResultSumItem = {
   trial: string;
@@ -45,7 +45,7 @@ const StroopTest = (props: Props) => {
   const errorsRef = useRef(0);
 
   // Sends test data to database
-  const sendData = api.test.sendData.useMutation();
+  const sendData = api.stroopTest.sendData.useMutation();
 
   // Flash when incorrect response during warm up
   // Also temp store of errors for trial results
@@ -154,10 +154,12 @@ const StroopTest = (props: Props) => {
     }
   }, [ctx.currentColorName]);
 
-  if (ctx.loadComponent === "") {
-    props.setTestHasFinished(true);
-    return null;
-  }
+  // Return to main screen
+  useEffect(() => {
+    if (ctx.loadComponent === "") {
+      props.setTestHasFinished(true);
+    }
+  }, [ctx.loadComponent]);
 
   return (
     <div className="flex h-screen flex-col items-center justify-center text-slate-200">
@@ -166,6 +168,7 @@ const StroopTest = (props: Props) => {
         <AnimatedInstructions
           instructions={i.initialInstructions}
           load={"warmUpButton-1"}
+          setLoadComponent={ctx.setLoadComponent}
         />
       )}
       {/* Start button for warm up */}
@@ -189,6 +192,7 @@ const StroopTest = (props: Props) => {
         <AnimatedInstructions
           load={"testButton-1"}
           instructions={i.matchingTestInstructions}
+          setLoadComponent={ctx.setLoadComponent}
         />
       )}
       {/* Start button for first test */}
@@ -212,6 +216,7 @@ const StroopTest = (props: Props) => {
         <AnimatedInstructions
           load={"warmUpButton-2"}
           instructions={i.mismatchColorTextInstruction}
+          setLoadComponent={ctx.setLoadComponent}
         />
       )}
       {/* Start button for second warm up */}
@@ -235,6 +240,7 @@ const StroopTest = (props: Props) => {
         <AnimatedInstructions
           load={"testButton-2"}
           instructions={i.mismatchColorTextInstructionRepeat}
+          setLoadComponent={ctx.setLoadComponent}
         />
       )}
       {/* Second test start button */}
@@ -258,6 +264,7 @@ const StroopTest = (props: Props) => {
         <AnimatedInstructions
           load={"warmUpButton-3"}
           instructions={i.mismatchColorValueInstruction}
+          setLoadComponent={ctx.setLoadComponent}
         />
       )}
       {/* Third warm up start button*/}
@@ -281,6 +288,7 @@ const StroopTest = (props: Props) => {
         <AnimatedInstructions
           load={"testButton-3"}
           instructions={i.mismatchColorValueInstructionRepeat}
+          setLoadComponent={ctx.setLoadComponent}
         />
       )}
       {/* Third test start button*/}
@@ -303,7 +311,11 @@ const StroopTest = (props: Props) => {
       {ctx.loadComponent === "end" && (
         <div>
           <ShowResults resultsRef={ctx.resultsRef} errorsRef={errorsRef} />
-          <AnimatedInstructions load={""} instructions={i.endInstruction} />
+          <AnimatedInstructions
+            load={""}
+            instructions={i.endInstruction}
+            setLoadComponent={ctx.setLoadComponent}
+          />
         </div>
       )}
     </div>
