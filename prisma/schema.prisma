@@ -12,15 +12,26 @@ generator client {
 }
 
 model User {
-    email             String   @id @unique
+    email             String       @id @unique
     gender            String
     dateOfBirth       DateTime
     currentOccupation String
     highestEdu        String
-    tests             Test[]
+    stroopTests       StroopTest[]
+    CPTtests          CPTTest[]
 }
 
-model Test {
+model StroopTest {
+    id        String   @id @default(cuid())
+    createdAt DateTime @default(now())
+    testScore Json
+    testTaker User     @relation(fields: [userEmail], references: [email])
+    userEmail String
+
+    @@index([userEmail])
+}
+
+model CPTTest {
     id        String   @id @default(cuid())
     createdAt DateTime @default(now())
     testScore Json
