@@ -55,11 +55,6 @@ const CptTest = (props: Props) => {
   const flashTime = 50;
   const errorFlashColor = "bg-red-500";
 
-  // TO DO:
-  // Send data to db
-  // Show results
-  // adjust test length
-
   // Prevents user from just spamming
   useEffect(() => {
     if (!hasStarted) return;
@@ -77,8 +72,6 @@ const CptTest = (props: Props) => {
         props.setTestHasFinished(true);
       }, 3000);
     }
-
-    console.log(clickCounter);
 
     return () => {
       document.removeEventListener("mousedown", spamSheild);
@@ -114,14 +107,11 @@ const CptTest = (props: Props) => {
       const currentResponses = resultsRef.current.get(loadComponent);
 
       if (currentResponses) {
-        console.log("RESPONSE PUSH");
         currentResponses.push({
           responseTime: responseTime,
           shape: shapeRef.current,
         });
       } else {
-        console.log("RESPONSE SET");
-
         resultsRef.current.set(loadComponent, [
           {
             responseTime: responseTime,
@@ -143,14 +133,11 @@ const CptTest = (props: Props) => {
       const currentResponses = resultsRef.current.get(loadComponent);
 
       if (currentResponses) {
-        console.log("OMISSION PUSH");
         currentResponses.push({
           responseTime: 0,
           shape: shapeRef.current,
         });
       } else {
-        console.log("OMISSION SET");
-
         resultsRef.current.set(loadComponent, [
           {
             responseTime: 0,
@@ -303,11 +290,6 @@ const CptTest = (props: Props) => {
       props.setTestHasFinished(true);
     }
   }, [loadComponent]);
-
-  // DEBUG
-  useEffect(() => {
-    console.log(resultsRef.current);
-  }, [hasStarted]);
 
   return (
     <div>
